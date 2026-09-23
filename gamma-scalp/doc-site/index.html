@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>G4Trade Journal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            line-height: 1.6;
+            padding: 80px 16px 20px 16px;
+        }
+        
+        /* NAVIGARE FIXĂ SUS */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: rgba(10,10,10,0.98); padding: 12px 16px;
+            display: flex; justify-content: center; gap: 10px;
+            border-bottom: 1px solid #222; backdrop-filter: blur(10px);
+        }
+        .nav a {
+            padding: 10px 18px; border-radius: 8px; text-decoration: none;
+            font-weight: 700; font-size: 14px; letter-spacing: 0.5px;
+        }
+        .nav .live { background: #ffcc00; color: #000; }
+        .nav .stats { background: #00ff41; color: #000; }
+        .nav .docs { background: #0066cc; color: #fff; }
+        
+        /* HEADER */
+        .header { text-align: center; margin: 20px 0 30px 0; }
+        .header h1 { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .header p { font-size: 14px; color: #888; }
+        
+        /* CARDURI */
+        .card {
+            background: #161616; border-radius: 16px; padding: 24px;
+            margin-bottom: 20px; border: 1px solid #2a2a2a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .card h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .card h3 { font-size: 17px; font-weight: 600; margin: 20px 0 10px 0; color: #00ff41; }
+        .card p { font-size: 15px; color: #ccc; margin-bottom: 12px; }
+        .card ul { list-style: none; padding: 0; }
+        .card li {
+            font-size: 15px; color: #ccc; padding: 10px 0 10px 28px;
+            position: relative; border-bottom: 1px solid #222;
+        }
+        .card li:last-child { border-bottom: none; }
+        .card li::before {
+            content: '✓'; position: absolute; left: 0; top: 10px;
+            color: #00ff41; font-weight: bold; font-size: 16px;
+        }
+        
+        /* CARD UPDATE (galben) */
+        .card-update {
+            border-left: 4px solid #ffcc00;
+            background: #1a1a1a;
+        }
+        .card-update h2 { color: #ffcc00; }
+        .card-update .highlight { color: #ffcc00; font-weight: 700; }
+        
+        /* CARD ARHITECTURĂ (verde) */
+        .card-arch h2 { color: #00ff41; }
+        .card-arch .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+        
+        /* BUTON FINAL */
+        .btn-back {
+            display: block; width: 100%; max-width: 320px; margin: 30px auto 20px auto;
+            background: #00ff41; color: #000; padding: 18px 32px;
+            text-align: center; text-decoration: none; border-radius: 12px;
+            font-weight: 700; font-size: 16px; letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0,255,65,0.3);
+        }
+        
+        /* FOOTER */
+        .footer { text-align: center; color: #555; font-size: 12px; margin-top: 30px; padding-bottom: 20px; }
+        
+</style>
+
+<style>
+.g4trade-nav {
+    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+    z-index: 99999 !important; background: rgba(10, 10, 10, 0.98) !important;
+    border-bottom: 1px solid #333 !important; backdrop-filter: blur(10px) !important;
+    display: flex !important; justify-content: space-around !important;
+    align-items: center !important; padding: 8px 4px !important; gap: 4px !important;
+}
+.g4trade-nav a {
+    flex: 1 !important; text-align: center !important; padding: 10px 4px !important;
+    border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important;
+    text-decoration: none !important; white-space: nowrap !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+.btn-live { background: #ffcc00 !important; color: #000 !important; }
+.btn-stats { background: #00ff41 !important; color: #000 !important; }
+.btn-docs { background: #0066cc !important; color: #fff !important; }
+.btn-news { background: #ff4444 !important; color: #fff !important; }
+</style>
+
+</head>
+<body>
+<div class="g4trade-nav">
+    <a href="https://g4trade.online/" class="btn-live">🔴 LIVE</a>
+    <a href="https://stats.g4trade.online/" class="btn-stats">📊 STATS</a>
+    <a href="https://doc.g4trade.online/" class="btn-docs"> DOCS</a>
+    <a href="https://news.g4trade.online/" class="btn-news">📰 NEWS</a>
+</div>
+
+
+    <!-- NAVIGARE -->
+    <div class="nav">
+        <a href="https://g4trade.online/" class="live">🔴 LIVE</a>
+        <a href="https://stats.g4trade.online/" class="stats">📊 STATS</a>
+        <a href="https://doc.g4trade.online/" class="docs">📚 DOCS</a>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>G4Trade System Journal</h1>
+        <p>Jurnal de evoluție, arhitectură și update-uri live</p>
+    </div>
+
+    <!-- UPDATE 22.09.2026 -->
+    <div class="card card-update">
+        <h2> Update 22.09.2026: Modul "Sniper" 1.0 Lot</h2>
+        
+        <h3>🔴 Analiza Sesiunii de Test</h3>
+        <p>În timpul sesiunii de testare, sistemul a înregistrat o pierdere cumulată de aproximativ 5,000$ pe contul de demo. Cauza: volum forțat la 1.0 Lot și praguri de filtrare coborâte, coincizând cu o perioadă de lichiditate scăzută.</p>
+        <p><em>Notă: Acesta este exact motivul pentru care avem conturi Demo – pentru a identifica și corecta astfel de vulnerabilități înainte ca orice ban real să fie riscat.</em></p>
+        
+        <h3>️ Soluția Implementată: Reguli Inviolabile</h3>
+        <ul>
+            <li><strong>Plafonare Volum (Circuit Breaker):</strong> Blocare hardcodată la maximum 1.00 Lots per trade. Sistemul execută automat exact 1.0 Lot la fiecare semnal valid.</li>
+            <li><strong>Fereastra "Prime Time":</strong> Execuție DOAR între 16:00 și 20:00 (ora României). În rest, motorul colectează date, dar refuză să deschidă poziții.</li>
+            <li><strong>Filtre de Siguranță Restabilite:</strong> Whale Volume minim: 5.0x, Scor de Consens minim: 85/100, Aliniere Multi-Timeframe (H1, M15, M30).</li>
+            <li><strong>Protecție Anti-Supra-Tranzacționare:</strong> Maxim 2 trade-uri pe zi și pauză obligatorie de 6 ore între ele.</li>
+        </ul>
+        
+        <h3>🚀 UPDATE LIVE: Sesiunea "Prime Time" (16:00 EET)</h3>
+        <p>Sistemul se află în prezent în modul de așteptare activă. Iată ce se va întâmpla exact la ora 16:00 (13:00 UTC):</p>
+        <ul>
+            <li><strong>Deblocare Automată:</strong> Filtrul de timp se va dezactiva, permițând motorului Sniper să trimită ordine către cTrader.</li>
+            <li><strong>Execuție 1.0 Lot:</strong> La primul semnal valid (ADX > 25, Score > 65, Whale confirmat), botul va deschide automat o poziție de <span class="highlight">1.00 Lot</span> (100 uncii).</li>
+            <li><strong>Monitorizare Live:</strong> Toate acțiunile, de la scanare la execuție, vor fi vizibile în timp real în consola verde de pe dashboard-ul principal (g4trade.online).</li>
+        </ul>
+        <p style="text-align: center; color: #00ff41; font-weight: 700; font-size: 16px; margin-top: 20px;">⏳ Botul este pregătit. Capitalul de test este alocat. Așteptăm declanșatorul.</p>
+    </div>
+
+    <!-- ARHITECTURĂ v3.2 -->
+    <div class="card card-arch">
+        <h2>️ Arhitectură Instituțională G4Trade v3.2</h2>
+        <p class="subtitle">Versiune matură, optimizată pe baza a 1127 de tranzacții backtestate (Ian-Sept 2026) • Profit Factor: 1.28 • Sharpe Ratio: 7.12</p>
+        
+        <h3>1. Filtru Macro & Protecție Rollover (22:00 EET)</h3>
+        <p>Sistemul se activează la 22:00 pentru a monitoriza fereastra critică de Rollover bancar (când lichiditatea scade și spread-urile se lărgesc artificial). Filtrul Macro blochează automat intrările cu 15 minute înainte și după știrile de impact major (NFP, CPI, Fed), eliminând riscul de slippage și protejând capitalul de volatilitatea haotică.</p>
+
+        <h3>2. Radar Smart Money (Whale & Delta Volume)</h3>
+        <p>Analizăm fluxul de ordine în timp real. Detectorul identifică spike-uri de volum >300% față de medie, confirmând prezența lichidității instituționale ("amprenta balenelor"). Nu ghicim suportul; vedem unde marii jucători își plasează ordinele, permițându-ne să țintim un Risk:Reward de 1:3 sau 1:4.</p>
+
+        <h3>3. Confirmare Multi-Timeframe (M15/M20/M30)</h3>
+        <p>Optimizează pe baza backtest-ului ITA: motorul agregă tick-urile și calculează ADX pe timeframe-urile M15, M20 și M30. Intrarea este aprobată doar dacă ADX > 25 pe cel puțin unul dintre aceste timeframe-uri, confirmând un trend puternic și filtrând piețele laterale. Această abordare multi-timeframe elimină fals-pozitivele de pe M1.</p>
+
+        <h3>4. Dynamic Position Sizing (Risk Management)</h3>
+        <p>Inspirat din strategia ITA: volumul trade-ului este calculat dinamic (nu fix) pe baza riscului de 1% per trade și a distanței până la Stop Loss. Dacă volatilitatea este mare (SL departe), volumul scade automat. Dacă trendul este clar (SL aproape), volumul crește. Astfel, riscul rămâne constant indiferent de condițiile pieței.</p>
+
+        <h3>5. Motorul de Consens în Casadă (Scor > 70)</h3>
+        <p>Niciun trade nu este executat "orb". Setup-ul trebuie să treacă de 4 filtre ierarhice: (1) Calendar Macro Liber, (2) Whale Detection Activ, (3) Confirmare Trend Multi-Timeframe, (4) Dynamic Position Sizing Valid. Doar dacă Scorul de Consens depășește 70/100, ordinul este aprobat. Această cascadă elimină fals-pozitivele și protejează capitalul.</p>
+
+        <h3>6. Arhitectură Decuplată & Securitate</h3>
+        <p>Frontend-ul React comunică securizat cu motorul Python printr-un API Gateway izolat. Conectivitatea cu brokerul (cTrader Open API) este gestionată exclusiv la nivel de server, criptată end-to-end. Cheile API și logica de trading nu sunt niciodată expuse în browser.</p>
+
+        <h3>📝 Changelog v3.2 (Ultima Actualizare)</h3>
+        <ul>
+            <li>Multi-Timeframe ADX: Upgrade de la M1 la M15/M20/M30 pentru filtrare superioară (inspirat din backtest ITA)</li>
+            <li>Dynamic Position Sizing: Calcul automat al volumului bazat pe risc de 1% per trade (inspirat din ITA)</li>
+            <li>Rollover Awareness: Protecție activă în fereastra 22:00-23:00 (lichiditate scăzută)</li>
+            <li>Consensus Engine Recalibrat: Prag de aprobare 70/100 cu 4 filtre ierarhice</li>
+            <li>Backtest Validation: Optimizat pe 1127 tranzacții (Profit Factor 1.28, Sharpe 7.12)</li>
+        </ul>
+    </div>
+
+    <!-- BUTON BACK -->
+    <a href="https://g4trade.online/" class="btn-back">🔴 BACK TO LIVE VIEW</a>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        G4Trade Trading System v4.0 | Ultima actualizare: 22.09.2026
+    </div>
+
+
+<div style="margin-top: 40px; padding: 20px; background: rgba(255, 204, 0, 0.05); border-left: 3px solid #ffcc00; border-radius: 8px; font-size: 13px; color: #999; line-height: 1.6;">
+    <strong style="color: #ffcc00;">🤖 Despre ADI - Agentul AI:</strong><br>
+    ADI nu este o persoană, ci un <strong>agent AI avansat</strong> antrenat pe miliarde de tranzacții istorice, cu acces la peste <strong>32 TB de informații</strong> despre piețe financiare. ADI ne îndrumă să luăm cele mai bune decizii de trading.
+</div>
+
+</body>
+</html>

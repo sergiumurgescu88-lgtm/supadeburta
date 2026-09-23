@@ -1,0 +1,130 @@
+import os, json, time
+from datetime import datetime
+from dotenv import load_dotenv
+from ctrader_open_api import Client, Protobuf, TcpProtocol, EndPoints
+from ctrader_open_api.messages.OpenApiMessages_pb2 import (
+    ProtoOAApplicationAuthReq, ProtoOAApplicationAuthRes,
+    ProtoOAAccountAuthReq, ProtoOAAccountAuthRes,
+    ProtoOAGetAccountListByAccessTokenReq, ProtoOAGetAccountListByAccessTokenRes,
+    ProtoOASubscribeSpotsReq, ProtoOASpotEvent, ProtoOANewOrderReq
+)
+from twisted.internet import reactor
+load_dotenv()
+host = EndPoints.PROTOBUF_DEMO_HOST
+ACCOUNT_ID = 48710563
+TRADE_FILE = '/root/ctrader-g4trade-bot/dashboard/static/trade_request.json'
+print('=== NOUL COD A FOST INCARCAT ===')
+class Bot:
+    def __init__(self):
+        self.client = None
+        self.connected = False
+        self.price_history = []
+        self.current_candle = None
+    def connect(self):
+        print('[NOU] Conectare DEMO cont ' + str(ACCOUNT_ID))
+        self.client = Client(host, EndPoints.PROTOBUF_PORT, TcpProtocol)
+        self.client.setConnectedCallback(self.on_connected)
+        self.client.setMessageReceivedCallback(self.on_message)
+        self.client.setDisconnectedCallback(self.on_disconnected)
+        self.client.startService()
+        reactor.callInThread(self.check_trades)
+    def on_connected(self, client):
+        print('[NOU] PASUL 1: Trimitere ProtoOAApplicationAuthReq')
+        req = ProtoOAApplicationAuthReq()
+        req.clientId = os.getenv('CT_CLIENT_ID')
+        req.clientSecret = os.getenv('CT_CLIENT_SECRET')
+        client.send(req)
+    def on_disconnected(self, client, reason):
+        print('[NOU] DECONECTAT: ' + str(reason))
+        self.connected = False
+        reactor.callLater(5, self.connect)
+    def on_message(self, client, message):
+        try:
+            ext = Protobuf.extract(message)
+            name = ext.__class__.__name__
+            if isinstance(ext, ProtoOAApplicationAuthRes):
+                print('[NOU] PASUL 2: Trimitere ProtoOAGetAccountListByAccessTokenReq')
+                req = ProtoOAGetAccountListByAccessTokenReq()
+                req.accessToken = os.getenv('CT_ACCESS_TOKEN')
+                client.send(req)
+            elif isinstance(ext, ProtoOAGetAccountListByAccessTokenRes):
+                print('[NOU] PASUL 3: Lista conturilor primita')
+                for acc in ext.ctidTraderAccount:
+                    print('  -> Cont gasit ID ' + str(acc.ctidTraderAccountId))
+                print('[NOU] Autentificare cont ' + str(ACCOUNT_ID))
+                req = ProtoOAAccountAuthReq()
+                req.ctidTraderAccountId = ACCOUNT_ID
+                req.accessToken = os.getenv('CT_ACCESS_TOKEN')
+                client.send(req)
+            elif isinstance(ext, ProtoOAAccountAuthRes):
+                print('[NOU] PASUL 4: SUCCES Cont ' + str(ACCOUNT_ID) + ' autentificat')
+                req = ProtoOASubscribeSpotsReq()
+                req.ctidTraderAccountId = ACCOUNT_ID
+                req.symbolId.append(41)
+                client.send(req)
+                self.connected = True
+            elif isinstance(ext, ProtoOASpotEvent):
+                bid = ext.bid / 100
+                ask = ext.ask / 100
+                ts = int(time.time())
+                ct = (ts // 60) * 60
+                if self.current_candle is None or self.current_candle['time'] != ct:
+                    if self.current_candle:
+                        self.price_history.append(self.current_candle)
+                        if len(self.price_history) > 100:
+                            self.price_history.pop(0)
+                    self.current_candle = {'time': ct, 'open': bid, 'high': bid, 'low': bid, 'close': bid}
+                else:
+                    self.current_candle['close'] = bid
+                    self.current_candle['high'] = max(self.current_candle['high'], bid)
+                    self.current_candle['low'] = min(self.current_candle['low'], bid)
+                hist = self.price_history + ([self.current_candle] if self.current_candle else [])
+                data = {'price': round(bid, 2), 'bid': round(bid, 2), 'ask': round(ask, 2), 'time': datetime.now().strftime('%H:%M:%S'), 'timestamp': ts, 'history': hist[-50:]}
+                with open('/root/ctrader-g4trade-bot/dashboard/static/latest_price.json', 'w') as ff:
+                    json.dump(data, ff)
+            elif 'Order' in name or 'Position' in name:
+                print('[NOU] Raspuns server: ' + name)
+                oid = getattr(ext, 'orderId', getattr(ext, 'positionId', 'N/A'))
+                err = getattr(ext, 'errorCode', 0)
+                if err:
+                    print('[NOU] Eroare ordin: ' + str(err))
+                else:
+                    print('[NOU] ORDIN EXECUTAT ID: ' + str(oid))
+        except Exception as e:
+            print('[NOU] Eroare mesaj: ' + str(e))
+    def check_trades(self):
+        while True:
+            time.sleep(1)
+            if os.path.exists(TRADE_FILE):
+                try:
+                    with open(TRADE_FILE, 'r') as ff:
+                        content = ff.read().strip()
+                    if not content:
+                        continue
+                    req = json.loads(content)
+                    if req.get('action') == 'create' and self.connected and self.client:
+                        ot = req['order_type']
+                        vol = req['volume']
+                        print('[NOU] COMANDA Side=' + str(ot) + ' Vol=' + str(vol))
+                        trade = ProtoOANewOrderReq()
+                        trade.ctidTraderAccountId = int(ACCOUNT_ID)
+                        trade.symbolId = int(req['symbol_id'])
+                        trade.orderType = 1
+                        trade.tradeSide = int(ot)
+                        trade.volume = int(vol)
+                        sl = req.get('sl')
+                        tp = req.get('tp')
+                        if sl and float(sl) > 0:
+                            trade.stopLoss = int(float(sl) * 100)
+                        if tp and float(tp) > 0:
+                            trade.takeProfit = int(float(tp) * 100)
+                        print('[NOU] Trimitere ctid=' + str(trade.ctidTraderAccountId) + ' sym=' + str(trade.symbolId))
+                        self.client.send(trade)
+                        print('[NOU] Comanda trimisa')
+                    os.rename(TRADE_FILE, TRADE_FILE + '.processed')
+                except Exception as e:
+                    print('[NOU] Eroare comanda: ' + str(e))
+if __name__ == '__main__':
+    print('[NOU] Start cont ' + str(ACCOUNT_ID))
+    Bot().connect()
+    reactor.run()

@@ -1,0 +1,131 @@
+import os
+import time
+import json
+from flask import Flask, jsonify, request
+from auth_cTrader import auth_bp
+from flask_socketio import SocketIO
+
+app = Flask(__name__)
+
+app.register_blueprint(auth_bp, url_prefix="/auth")
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Încercăm să încărcăm API-ul de Trading Intelligence
+try:
+    import sys
+    sys.path.append('/root/ctrader-g4trade-bot')
+    from api_trading import register_trading_api
+    register_trading_api(app)
+    print("✅ Trading API încărcat cu succes!")
+except Exception as e:
+    print(f"⚠️ Trading API nu a putut fi încărcat: {e}")
+
+@app.route('/api/trade', methods=['POST'])
+def api_trade():
+    try:
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({'error': 'Date lipsă'}), 400
+        
+        side = str(data.get('side', 'UNKNOWN'))
+        volume = float(data.get('volume', 0.01))
+        sl = float(data.get('sl', 0)) if data.get('sl') else None
+        tp = float(data.get('tp', 0)) if data.get('tp') else None
+
+        static_dir = '/root/ctrader-g4trade-bot/dashboard/static'
+        os.makedirs(static_dir, exist_ok=True)
+
+        trade_data = {
+            'side': side,
+            'volume': volume,
+            'sl': sl,
+            'tp': tp,
+            'symbol': 'XAUUSD',
+            'timestamp': time.time(),
+            'status': 'PENDING_EXECUTION'
+        }
+
+        file_path = os.path.join(static_dir, 'trade_request.json')
+        with open(file_path, 'w') as f:
+            json.dump(trade_data, f, indent=4)
+
+        print(f"✅ COMANDĂ SCRISĂ ÎN FIȘIER: {file_path}")
+        return jsonify({'message': f'Comanda {side} a fost înregistrată și trimisă către bot!', 'data': trade_data})
+    except Exception as e:
+        print(f"❌ EROARE CRITICĂ ÎN api_trade: {str(e)}")
+        return jsonify({'error': 'Eroare internă', 'details': str(e)}), 500
+
+@app.route('/')
+def index():
+    return jsonify({'status': 'G4Trade Dashboard API is running'})
+
+if __name__ == '__main__':
+    print("🚀 DASHBOARD PORNIT PE PORTUL 5050")
+    
+@app.route('/api/trading/logs')
+def get_trading_logs():
+    try:
+        with open('/var/log/g4trade-strategy.log', 'r') as f:
+            return "".join(f.readlines()[-200:])
+    except Exception as e:
+        return str(e), 500
+
+app.run(host='0.0.0.0', port=5050, debug=False)
+
+@app.route('/api/system/status')
+def get_system_status():
+    import json
+    try:
+        with open('static/system_status.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"error": "Status file not found"}, 404
+
+@app.route('/architecture')
+def architecture_page():
+    return send_from_directory('static', 'architecture.html')
+
+
+@app.route('/terminal')
+def terminal_page():
+    return send_from_directory('static', 'terminal.html')
+
+
+@app.route('/terminal')
+def terminal_page():
+    return '''<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>G4Trade Live Terminal</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #050505; color: #00ff41; font-family: 'Courier New', monospace; height: 100%; overflow: hidden; }
+        #term { padding: 70px 15px 15px 15px; height: 100vh; overflow-y: auto; white-space: pre-wrap; font-size: 13px; line-height: 1.4; text-shadow: 0 0 2px #00ff41; }
+        .hdr { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); border-bottom: 1px solid #00ff41; padding: 12px 20px; z-index: 10; display: flex; justify-content: space-between; font-weight: bold; letter-spacing: 1px; }
+        .blink { animation: b 1s infinite; } @keyframes b { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="hdr"><span>🟢 G4Trade STRATEGY ENGINE - LIVE FEED</span><span>● CONNECTED <span class="blink">_</span></span></div>
+    <div id="term">Se încarcă log-urile...</div>
+    <script>
+        const t = document.getElementById('term'); let last = 0;
+        setInterval(async () => {
+            try {
+                const r = await fetch('/api/trading/logs?t=' + Date.now());
+                const txt = await r.text();
+                if (txt.length !== last) { t.textContent = txt; last = txt.length; t.scrollTop = t.scrollHeight; }
+            } catch(e) { t.textContent = "Eroare conexiune..."; }
+        }, 1500);
+    </script>
+</body>
+</html>
+
+def get_trading_logs():
+    try:
+        with open('/var/log/g4trade-strategy.log', 'r') as f:
+            return "".join(f.readlines()[-200:])
+    except Exception as e:
+        return str(e), 500

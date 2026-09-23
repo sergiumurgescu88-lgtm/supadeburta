@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4Trade Dashboard - XAUUSD Live</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .dashboard-card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 25px; margin-bottom: 20px; }
+        .price-display { font-size: 3.5em; font-weight: bold; color: #667eea; text-align: center; margin: 20px 0; }
+        .price-up { color: #28a745; }
+        .price-down { color: #dc3545; }
+        .stat-box { background: #f8f9fa; border-radius: 10px; padding: 20px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #333; }
+        .stat-label { color: #666; font-size: 0.9em; text-transform: uppercase; }
+        .live-indicator { display: inline-block; width: 10px; height: 10px; background: #28a745; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card text-center">
+                    <h1 class="display-4"><i class="fas fa-chart-line text-primary"></i> G4Trade Dashboard</h1>
+                    <p class="lead text-muted"><span class="live-indicator"></span> Live Trading Monitor - XAUUSD</p>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="dashboard-card">
+                    <h3 class="text-center mb-3"><i class="fas fa-coins text-warning"></i> XAUUSD (Gold)</h3>
+                    <div id="price-display" class="price-display">$0.00</div>
+                    <div class="text-center text-muted"><small>Ultima actualizare: <span id="last-update">--:--:--</span></small></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="dashboard-card">
+                    <h5 class="text-center mb-3"><i class="fas fa-wallet"></i> Cont Demo</h5>
+                    <div class="stat-box mb-3"><div class="stat-value">$10,000</div><div class="stat-label">Balans</div></div>
+                    <div class="stat-box"><div class="stat-value text-success">$0.00</div><div class="stat-label">Profit/Pierdere</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h4 class="mb-3"><i class="fas fa-chart-area"></i> Evoluție Preț (Live)</h4>
+                    <canvas id="priceChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'XAUUSD', data: [], borderColor: '#667eea', backgroundColor: 'rgba(102, 126, 234, 0.1)', tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { callback: function(value) { return '$' + value.toFixed(2); } } } } }
+        });
+        const socket = io("https://g4trade.online", { transports: ["websocket", "polling"], forceNew: true, reconnection: true });
+        socket.on('price_update', function(data) {
+            const price = data.price;
+            // CORECȚIE AUTOMATĂ: Dacă prețul e > 10000, îl împărțim la 1000 ca să arate normal (ex: 4345290 -> 4345.29)
+            const displayPrice = price > 10000 ? (price / 1000) : price;
+            const time = data.time;
+            const priceDisplay = document.getElementById('price-display');
+            priceDisplay.textContent = '$' + displayPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('last-update').textContent = time;
+            priceChart.data.labels.push(time);
+            priceChart.data.datasets[0].data.push(displayPrice);
+            if (priceChart.data.labels.length > 50) {
+                priceChart.data.labels.shift();
+                priceChart.data.datasets[0].data.shift();
+            }
+            priceChart.update('none');
+        });
+        fetch('/api/current').then(r => r.json()).then(data => {
+            data.history.forEach(point => {
+                const displayPrice = point.price > 10000 ? (point.price / 1000) : point.price;
+                priceChart.data.labels.push(point.time);
+                priceChart.data.datasets[0].data.push(displayPrice);
+            });
+            priceChart.update();
+        });
+    </script>
+</body>
+</html>

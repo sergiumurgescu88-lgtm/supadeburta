@@ -1,0 +1,371 @@
+<!-- G4Trade Nav -->
+<div class="g4trade-nav">
+    <a href="https://g4trade.online/" class="btn-live">🔴 LIVE</a>
+    <a href="https://stats.g4trade.online/" class="btn-stats">📊 STATS</a>
+    <a href="https://doc.g4trade.online/" class="btn-docs"> DOCS</a>
+</div>
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<style>
+.g4trade-nav { position: fixed; top: 10px; right: 10px; z-index: 10000; display: flex; gap: 8px; }
+.g4trade-nav a { color: #000; padding: 8px 12px; text-decoration: none; border-radius: 5px; font-weight: bold; font-family: Arial, sans-serif; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); white-space: nowrap; transition: transform 0.2s; }
+.g4trade-nav a:active { transform: scale(0.95); }
+.g4trade-nav .btn-live { background: #ffcc00; }
+.g4trade-nav .btn-stats { background: #00ff41; }
+.g4trade-nav .btn-docs { background: #0066cc; color: #fff; }
+@media (max-width: 768px) {
+    .g4trade-nav { top: 60px; right: 5px; left: 5px; justify-content: center; flex-wrap: wrap; background: rgba(0, 0, 0, 0.85); padding: 8px; border-radius: 8px; backdrop-filter: blur(4px); }
+    .g4trade-nav a { padding: 8px 10px; font-size: 13px; flex: 1; text-align: center; min-width: 80px; }
+}
+</style>
+
+
+
+
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4Trade | Professional Trading Platform</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%23f7931a'/><path fill='%23ffffff' d='M45.5,27.5c0.8-5.3-3.3-8.2-8.8-10.1l1.8-7.2l-4.4-1.1l-1.7,6.9c-1.2-0.3-2.4-0.6-3.6-0.9l1.7-6.9l-4.4-1.1l-1.8,7.2c-0.9-0.2-1.9-0.5-2.8-0.7l0,0l-6.1-1.5l-1.2,4.7c0,0,3.3,0.8,3.2,0.8c1.8,0.4,2.1,1.6,2.1,2.5l-2.1,8.4c0.1,0,0.3,0.1,0.4,0.1c-0.1,0-0.3-0.1-0.4-0.1l-2.9,11.8c-0.2,0.5-0.8,1.3-2.1,1l-3.2-0.8l-2.2,5.1l5.7,1.4c1.1,0.3,2.1,0.6,3.2,0.9l-1.8,7.3l4.4,1.1l1.8-7.2c1.2,0.3,2.4,0.6,3.5,0.9l-1.8,7.2l4.4,1.1l1.8-7.3c7.5,1.4,13.1,0.9,15.5-5.9c1.9-5.4-0.1-8.5-4-10.6C43.6,33.8,45.1,31.3,45.5,27.5z M38.8,39.6c-1.3,5.4-10.3,2.5-13.2,1.8l2.4-9.5C30.9,32.6,40.2,33.8,38.8,39.6z M40.5,27.4c-1.2,4.9-8.7,2.4-11.1,1.8l2.1-8.6C33.9,21.2,41.8,22.1,40.5,27.4z'/></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { background-color: #020617; color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; }
+        .glass-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-yellow-500/20 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+                <div><h1 class="text-3xl font-bold text-yellow-400">G4Trade Platform</h1><p class="text-slate-400 text-sm">Live Execution • XAUUSD</p></div>
+            </div>
+            <a href="https://stats.g4trade.online" target="_blank" class="bg-blue-500/20 text-blue-400 px-3 py-2 rounded text-sm border border-blue-500/30 mr-3 hover:bg-blue-500/30 transition-all flex items-center gap-2">📊 Raport Zilnic</a>
+<div class="glass-card px-4 py-2 rounded-lg text-sm">Live: <span id="last-update" class="text-white font-mono">--:--:--</span></div>
+        </header>
+
+        
+<div style="display: flex; gap: 15px; justify-content: center; margin: 20px 0; flex-wrap: wrap;">
+    
+<a href="http://stats.g4trade.online" target="_blank" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg text-base font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-3 no-underline">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    📊 Ce s-a întâmplat astăzi?
+</a>
+
+    
+<a href="http://doc.g4trade.online" target="_blank" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg text-base font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-3 no-underline">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    📚 Strategie & Analiză
+</a>
+
+</div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Preț Live -->
+            <div class="lg:col-span-2 glass-card rounded-2xl p-6 border-slate-700">
+                <h2 class="text-slate-400 text-lg font-medium mb-2">XAUUSD Spot Price</h2>
+                <div class="flex items-baseline gap-4 mb-4">
+                    <div class="text-5xl md:text-6xl font-bold text-emerald-400">$<span id="price-value">Loading...</span></div>
+                    <div id="price-change" class="text-lg font-semibold"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <span class="text-slate-400">Bid:</span>
+                        <span id="bid-value" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">Ask:</span>
+                        <span id="ask-value" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">Spread:</span>
+                        <span id="spread-value" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">24h Change:</span>
+                        <span id="change-24h" class="font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">24h High:</span>
+                        <span id="high-24h" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">24h Low:</span>
+                        <span id="low-24h" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">Volume:</span>
+                        <span id="volume-24h" class="text-white font-mono ml-1">--</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">Updated:</span>
+                        <span id="update-time" class="text-white font-mono ml-1 text-xs">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panou de Trading -->
+            <div class="glass-card rounded-2xl p-6 border-slate-700">
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Execută Ordin
+                </h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400">Volum (unități, 1000 = 0.01 lot)</label>
+                        <input type="number" id="trade-volume" value="1000" class="w-full bg-slate-900/50 border border-slate-700 rounded p-2 text-white mt-1 focus:border-yellow-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400">Stop Loss (Preț)</label>
+                            <input type="number" id="trade-sl" step="0.01" placeholder="Opțional" class="w-full bg-slate-900/50 border border-slate-700 rounded p-2 text-white mt-1 focus:border-yellow-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Take Profit (Preț)</label>
+                            <input type="number" id="trade-tp" step="0.01" placeholder="Opțional" class="w-full bg-slate-900/50 border border-slate-700 rounded p-2 text-white mt-1 focus:border-yellow-500 outline-none">
+                        </div>
+                    </div>
+                    <div id="trade-status" class="text-xs text-center h-4 text-slate-400"></div>
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="sendTrade(1)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">BUY</button>
+                        <button onclick="sendTrade(2)" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">SELL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <script>
+        console.log("🚀 MODUL DE TRADING ACTIVAT");
+                
+        
+        
+
+        function updateScreen(data) {
+            const p = data.price > 10000 ? (data.price / 1000) : data.price;
+            const b = data.bid > 10000 ? (data.bid / 1000) : data.bid;
+            const a = data.ask > 10000 ? (data.ask / 1000) : data.ask;
+            document.getElementById('price-value').innerText = p.toFixed(2);
+            document.getElementById('bid-value').innerText = b.toFixed(2);
+            document.getElementById('ask-value').innerText = a.toFixed(2);
+            document.getElementById('last-update').innerText = data.time || 'Now';
+
+            if (data.history && data.history.length > 0) {
+                const candles = data.history.map(c => ({
+                    time: c.time,
+                    open: c.open > 10000 ? (c.open / 1000) : c.open,
+                    high: c.high > 10000 ? (c.high / 1000) : c.high,
+                    low: c.low > 10000 ? (c.low / 1000) : c.low,
+                    close: c.close > 10000 ? (c.close / 1000) : c.close,
+                }));
+                candleSeries.setData(candles);
+            }
+        }
+        
+        fetch('/api/current').then(res => res.json()).then(updateScreen);
+
+        // FUNCȚIA DE TRADING
+        function sendTrade(orderType) {
+            const volume = document.getElementById('trade-volume').value;
+            const sl = document.getElementById('trade-sl').value;
+            const tp = document.getElementById('trade-tp').value;
+            const statusEl = document.getElementById('trade-status');
+            const typeStr = orderType === 1 ? 'BUY' : 'SELL';
+            
+            statusEl.innerText = `⏳ Trimitere comandă ${typeStr}...`;
+            statusEl.className = "text-xs text-center h-4 text-yellow-400";
+
+            fetch('/api/trade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_type: orderType, volume: volume, sl: sl || null, tp: tp || null })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    statusEl.innerText = `✅ Comandă ${typeStr} trimisă cu succes!`;
+                    statusEl.className = "text-xs text-center h-4 text-emerald-400";
+                } else {
+                    statusEl.innerText = `❌ Eroare: ${data.message}`;
+                    statusEl.className = "text-xs text-center h-4 text-rose-400";
+                }
+            })
+            .catch(err => {
+                statusEl.innerText = "❌ Eroare de conexiune";
+                statusEl.className = "text-xs text-center h-4 text-rose-400";
+            });
+        }
+    </script>
+
+    
+
+
+
+<div id="g4-terminal" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 35vh; min-height: 120px; background: #050505; border-top: 2px solid #00ff41; z-index: 9999999; display: flex; flex-direction: column; font-family: 'Courier New', monospace; box-shadow: 0 -5px 25px rgba(0,0,0,0.9);">
+    <div id="g4-term-resize" style="position: absolute; top: -8px; left: 0; right: 0; height: 14px; cursor: ns-resize; z-index: 10; touch-action: none;"></div>
+    <div id="g4-term-header" style="background: #000; color: #00ff41; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #004411; font-size: 14px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;">
+        <span>🟢 G4Trade LIVE</span>
+        <div>
+            <button id="g4-term-fullscreen" style="background:none; border:1px solid #00ff41; color:#00ff41; cursor:pointer; padding: 4px 10px; border-radius: 4px; font-size: 12px; margin-right: 8px;">&#x26F6; Fullscreen</button>
+            <button id="g4-term-toggle" style="background:none; border:1px solid #00ff41; color:#00ff41; cursor:pointer; padding: 4px 10px; border-radius: 4px; font-size: 12px;">Minimize</button>
+        </div>
+    </div>
+    <div id="g4-term-logs" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; color: #00ff41; font-size: 13px; white-space: pre-wrap; word-break: break-all; text-shadow: 0 0 2px #00ff41; line-height: 1.5;">
+        Loading logs...
+    </div>
+</div>
+<style>
+    #g4-terminal.minimized { transform: translateY(calc(100% - 45px)); }
+    #g4-terminal.minimized #g4-term-logs { display: none; }
+    #g4-terminal.fullscreen { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100vh !important; height: 100dvh !important; max-height: none !important; z-index: 99999999 !important; }
+    #g4-terminal.fullscreen #g4-term-resize { display: none; }
+    @media (max-width: 768px) { #g4-term-logs { font-size: 14px !important; padding: 12px !important; } }
+</style>
+<script>
+(function() {
+    if (window.g4TerminalLoaded) return;
+    window.g4TerminalLoaded = true;
+    var terminal = document.getElementById('g4-terminal');
+    var header = document.getElementById('g4-term-header');
+    var handle = document.getElementById('g4-term-resize');
+    var toggleBtn = document.getElementById('g4-term-toggle');
+    var fsBtn = document.getElementById('g4-term-fullscreen');
+    var logs = document.getElementById('g4-term-logs');
+    var saved = localStorage.getItem('g4TermHeight');
+    if (saved) terminal.style.height = saved + 'px';
+
+    var resizing = false, startY = 0, startH = 0;
+    function move(clientY) {
+        var nh = startH + (startY - clientY);
+        var max = window.innerHeight - 60;
+        if (nh < 120) nh = 120;
+        if (nh > max) nh = max;
+        terminal.style.height = nh + 'px';
+        localStorage.setItem('g4TermHeight', nh);
+    }
+    handle.addEventListener('mousedown', function(e){ resizing = true; startY = e.clientY; startH = terminal.offsetHeight; e.preventDefault(); });
+    document.addEventListener('mousemove', function(e){ if (resizing) move(e.clientY); });
+    document.addEventListener('mouseup', function(){ resizing = false; });
+    handle.addEventListener('touchstart', function(e){ resizing = true; startY = e.touches[0].clientY; startH = terminal.offsetHeight; e.preventDefault(); }, {passive:false});
+    document.addEventListener('touchmove', function(e){ if (resizing) { move(e.touches[0].clientY); e.preventDefault(); } }, {passive:false});
+    document.addEventListener('touchend', function(){ resizing = false; });
+
+    header.addEventListener('click', function(e){ if (e.target.tagName !== 'BUTTON') terminal.classList.toggle('minimized'); });
+    toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); terminal.classList.toggle('minimized'); });
+    function setFs(on) {
+        terminal.classList.toggle('fullscreen', on);
+        fsBtn.innerHTML = on ? '&#x2715; Exit' : '&#x26F6; Fullscreen';
+    }
+    fsBtn.addEventListener('click', function(e){ e.stopPropagation(); setFs(!terminal.classList.contains('fullscreen')); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') setFs(false); });
+
+    var lastLen = 0, userUp = false;
+    logs.addEventListener('scroll', function(){ userUp = (logs.scrollHeight - logs.scrollTop - logs.clientHeight) > 60; });
+    setInterval(function(){
+        fetch('/api/trading/logs?t=' + Date.now()).then(function(r){ return r.text(); }).then(function(txt){
+            if (txt.length !== lastLen) {
+                logs.textContent = txt; lastLen = txt.length;
+                if (!userUp) logs.scrollTop = logs.scrollHeight;
+            }
+        }).catch(function(){});
+    }, 2000);
+})();
+</script>
+<!-- End G4Trade Terminal -->
+
+
+<!-- G4 MOBILE OPTIMIZATION v2 -->
+<style>
+@media (max-width: 768px) {
+  html, body { overflow-x: hidden; }
+  body { padding-bottom: 60px !important; font-size: 14px; }
+  h1 { font-size: 1.6em !important; }
+  h2 { font-size: 1.3em !important; }
+  h3 { font-size: 1.15em !important; }
+
+  /* ===== NAV BAR: 4 butoane intr-o singura linie, 25% fiecare ===== */
+  .g4trade-nav {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    flex-direction: row !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    width: 100% !important;
+  }
+  .g4trade-nav a {
+    flex: 1 1 25% !important;
+    width: 25% !important;
+    min-width: 0 !important;
+    max-width: 25% !important;
+    font-size: 0.72em !important;
+    padding: 8px 2px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Grid-uri -> o coloana */
+  [style*="grid-template-columns"], .trinity-grid, .strategies { grid-template-columns: 1fr !important; }
+
+  /* Tabele scroll orizontal */
+  table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Feed-uri / terminale */
+  pre, .live-terminal, [id*="terminal"], [class*="terminal"] {
+    font-size: 0.72em !important;
+    max-height: 320px !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+  #g4-terminal { position: relative !important; width: 100% !important; max-width: 100% !important; left: 0 !important; right: 0 !important; }
+  #g4-term-logs { font-size: 0.72em !important; white-space: pre-wrap !important; word-break: break-word !important; max-height: 280px !important; }
+
+  /* TradingView */
+  .tradingview-widget-container, .tradingview-widget-container > div { height: 350px !important; }
+  .tradingview-widget-container iframe { width: 100% !important; height: 350px !important; }
+
+  div[style*="max-width: 1200px"] { margin: 20px auto !important; padding: 15px !important; }
+  a[style*="display: block"], .btn-premium, .trinity-btn { font-size: 0.95em !important; padding: 12px !important; }
+
+  img, svg, canvas, video { max-width: 100% !important; }
+  [style*="position: fixed"], [class*="fixed"] { max-width: 100% !important; }
+}
+@media (max-width: 480px) {
+  body { font-size: 13px; }
+  .g4trade-nav a { font-size: 0.62em !important; padding: 7px 1px !important; letter-spacing: 0 !important; }
+  .live-terminal, #g4-term-logs, pre { font-size: 0.65em !important; }
+  .tradingview-widget-container, .tradingview-widget-container > div, .tradingview-widget-container iframe { height: 280px !important; }
+}
+</style>
+
+<script>
+// Fetch live price data from Finnhub (free tier)
+const FINNHUB_API_KEY = 'demo'; // Replace with your API key
+const SYMBOL = 'OANDA:XAUUSD';
+
+
+// Update every 5 seconds
+fetchLivePrice();
+setInterval(fetchLivePrice, 5000);
+</script>
+
+
+</body>
+</html>
+

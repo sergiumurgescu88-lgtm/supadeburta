@@ -1,0 +1,10 @@
+[
+  {
+    "received_at": "2026-09-22T19:05:18.274843",
+    "finnhub_data": {
+      "id": "test_123",
+      "headline": "Test News from Terminal",
+      "category": "general"
+    }
+  }
+]

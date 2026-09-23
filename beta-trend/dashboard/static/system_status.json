@@ -1,0 +1,17 @@
+{
+  "last_update": "2026-09-21 19:00",
+  "title": " ✅ TEST 1 LOT ACTIV + Scor reparat",
+  "details": [
+    "Volum fix forțat la 1.00 Lot (Sugestie Adi)",
+    "Risc per trade: 10% (Demo Stress-Test)",
+    "Reparat bug matematic: Scorul acum crește corect pe trenduri puternice",
+    "1 Lot Gold = $100 P&L la fiecare $1 miscare a pretului"
+  ],
+  "active_params": {
+    "ADX Gate": "25.0",
+    "Whale Gate": "1.5x",
+    "Score Gate": "65.0",
+    "Volume": "1.00 Lot (FIX)",
+    "Risk": "10.0%"
+  }
+}

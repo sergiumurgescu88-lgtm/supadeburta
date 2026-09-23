@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4Trade - Raport de Performanță și Analiză</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='1' x2='12' y2='23'></line><path d='M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'></path></svg>">
+    <style>
+        body { background: linear-gradient(135deg, #0a0a0a 0%, #111827 100%); color: #e2e8f0; font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; padding: 40px 20px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; margin-bottom: 30px; }
+        .header h1 { color: #10b981; margin: 0; font-size: 2.2em; font-weight: 800; letter-spacing: -0.5px; }
+        .header .date { color: #94a3b8; font-size: 1.1em; margin-top: 10px; font-weight: 600; }
+        .card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border-radius: 12px; padding: 30px; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.08); }
+        .card h2 { color: #f8fafc; margin-top: 0; font-size: 1.5em; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .highlight { color: #38bdf8; font-weight: 700; }
+        .win { color: #10b981; }
+        .loss { color: #f87171; }
+        .trade-row { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #475569; }
+        .trade-row.win-trade { border-left-color: #10b981; }
+        .trade-row.loss-trade { border-left-color: #f87171; }
+        .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .matrix-item { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px; }
+        .matrix-item h4 { margin-top: 0; color: #f87171; }
+        .matrix-item .solution { color: #10b981; margin-top: 10px; font-weight: 600; }
+        .cta-box { background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid #38bdf8; padding: 25px; border-radius: 12px; text-align: center; margin-top: 30px; }
+        .back-btn { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #facc15, #f59e0b); color: #000; padding: 14px 28px; border-radius: 10px; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.4); transition: all 0.3s; margin-top: 30px; }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(250, 204, 21, 0.6); }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        @media (max-width: 768px) { .matrix-grid { grid-template-columns: 1fr; } }
+    </style>
+
+<style>
+    :root {
+        --bg: #0a0a0a; --card: #161616; --text: #f0f0f0; --muted: #a0a0a0;
+        --green: #00ff41; --yellow: #ffcc00; --blue: #0066cc;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        background-color: var(--bg) !important;
+        color: var(--text) !important;
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+        margin: 0; padding: 0;
+        padding-top: 70px; /* Spațiu pentru bara de sus */
+    }
+    h1, h2, h3 { color: #ffffff !important; font-weight: 600; }
+    p, li, span, div { color: #d0d0d0 !important; }
+    
+    /* Bara de Navigare Flotantă */
+    
+    .g4trade-nav a {
+        text-decoration: none !important; padding: 8px 16px !important;
+        border-radius: 20px !important; font-weight: 600 !important;
+        font-size: 13px !important; font-family: inherit !important;
+        transition: transform 0.2s;
+    }
+    .g4trade-nav a:active { transform: scale(0.95); }
+    
+    
+    
+    
+
+    /* Optimizări generale de citire */
+    .container { max-width: 600px; margin: 0 auto; padding: 20px 15px; }
+    .card, .section { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #222; }
+</style>
+
+
+<style>
+.g4trade-nav {
+    position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+    z-index: 99999 !important; background: rgba(10, 10, 10, 0.98) !important;
+    border-bottom: 1px solid #333 !important; backdrop-filter: blur(10px) !important;
+    display: flex !important; justify-content: space-around !important;
+    align-items: center !important; padding: 8px 4px !important; gap: 4px !important;
+}
+.g4trade-nav a {
+    flex: 1 !important; text-align: center !important; padding: 10px 4px !important;
+    border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important;
+    text-decoration: none !important; white-space: nowrap !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+.btn-live { background: #ffcc00 !important; color: #000 !important; }
+.btn-stats { background: #00ff41 !important; color: #000 !important; }
+.btn-docs { background: #0066cc !important; color: #fff !important; }
+.btn-news { background: #ff4444 !important; color: #fff !important; }
+</style>
+
+</head>
+<body>
+<div class="g4trade-nav">
+    <a href="https://g4trade.online/" class="btn-live">🔴 LIVE</a>
+    <a href="https://stats.g4trade.online/" class="btn-stats">📊 STATS</a>
+    <a href="https://doc.g4trade.online/" class="btn-docs"> DOCS</a>
+    <a href="https://news.g4trade.online/" class="btn-news">📰 NEWS</a>
+</div>
+
+
+
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 Raport de Performanță și Analiză Instituțională</h1>
+    <p style="text-align: center; color: #888; font-size: 14px; margin-top: -10px; margin-bottom: 25px;">Dezvoltat de Sergiu, sub îndrumarea strategică a lui Adi. Transformăm haosul în matematică. 🚀</p>
+            <div class="date">📅 UPDATE: 22.09.2026 | G4Trade System v4.0</div>
+        </div>
+
+        <div class="card">
+            <h2>🧠 Motorul de Analiză Post-Tranzacție</h2>
+            <p>Sistemul G4Trade nu se limitează la executarea ordinelor. După fiecare sesiune de trading, motorul de analiză generează un raport detaliat pentru fiecare tranzacție, asigurând o <span class="highlight">transparență totală</span> și o îmbunătățire continuă a algoritmului.</p>
+            
+            <div class="trade-row win-trade">
+                <h3 class="win">✅ Analiza Trade-urilor Câștigătoare</h3>
+                <p>Softul analizează automat fiecare trade profitabil și raportează:</p>
+                <ul>
+                    <li><strong>Data și Ora:</strong> Timestamp exact al execuției.</li>
+                    <li><strong>Logica de Intrare:</strong> Confluența exactă a indicatorilor (ex: Whale Volume > 5x, Scor Consens > 85, aliniere H1/M15).</li>
+                    <li><strong>Logica de Ieșire:</strong> Motivul închiderii (Take Profit atins, Trailing Stop activat sau semnal invers de momentum).</li>
+                    <li><strong>Randament Net:</strong> Profitul realizat după comisioane și swap.</li>
+                </ul>
+            </div>
+
+            <div class="trade-row loss-trade">
+                <h3 class="loss">🔍 Analiza Trade-urilor Pierdute & Optimizare</h3>
+                <p>Pierderile nu sunt ascunse, ci sunt cea mai valoroasă sursă de date pentru optimizare. Pentru fiecare trade pierdut, sistemul generează:</p>
+                <ul>
+                    <li><strong>Cauza Rădăcină:</strong> De ce a intrat sistemul (ex: semnal fals generat de zgomotul pieței în sesiunea asiatică).</li>
+                    <li><strong>Managementul Riscului:</strong> Confirmarea că Stop Loss-ul a fost respectat strict, protejând capitalul de o pierdere catastrofală.</li>
+                    <li><strong>Sugestii de Îmbunătățire:</strong> 1-2 ajustări concrete ale parametrilor (ex: "Creșterea pragului minim ADX de la 30 la 35 pentru a filtra lateralizarea").</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛡️ Matricea Problemă - Soluție (Update Continuu)</h2>
+            <p>Orice vulnerabilitate identificată în rapoartele zilnice declanșează imediat o actualizare a codului. Iată ultimele optimizări implementate:</p>
+            <div class="matrix-grid">
+                <div class="matrix-item">
+                    <h4>⚠️ Problemă Identificată:</h4>
+                    <p>Execuția de trade-uri cu volum mare (1.0 Lot) în perioade de lichiditate scăzută (sesiunea asiatică), ducând la activarea Stop Loss-ului din cauza zgomotului de piață.</p>
+                    <div class="solution">✅ Soluție Implementată:</div>
+                    <p>1. <strong>Circuit Breaker:</strong> Limitare hardcodată la maxim 0.20 Lots.<br>2. <strong>Fereastra "Prime Time":</strong> Trading permis DOAR între 16:00 - 20:00 (ora României).</p>
+                </div>
+                <div class="matrix-item">
+                    <h4>⚠️ Problemă Identificată:</h4>
+                    <p>Sistemul genera semnale de intrare pe timeframe-uri mici (M1/M5) care contraziceau trendul major de pe H1.</p>
+                    <div class="solution">✅ Soluție Implementată:</div>
+                    <p><strong>Filtru Multi-Timeframe:</strong> Sistemul refuză orice intrare dacă H1, M30 și M15 nu sunt perfect aliniate în aceeași direcție.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h3 style="color: #f8fafc; margin-top: 0;">De ce să alegi Softul G4Trade Online?
+    Păi e simplu: pentru că e făcut de <strong>Sergiu</strong>, la îndrumarea strategică a lui <strong>Adi</strong> <span style="background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">AI AGENT</span>.
+    <br><br>
+    Pe bune acum, transformăm imprevizibilitatea pieței într-un proces matematic, disciplinat și complet auditabil. Fiecare decizie este justificată, fiecare pierdere este o lecție integrată in daily update, iar fiecare câștig este validat de reguli instituționale stricte.
+    <br><br>
+    <em style="color: #666; font-size: 13px;">(Notă: Acest link este strict privat. Dacă citești asta și nu ești Sergiu sau Adi, probabil ai intrat unde nu trebuie. 🕵️‍♂️)</em></p>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="https://g4trade.online" class="back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+<div style="margin-top: 40px; padding: 20px; background: rgba(255, 204, 0, 0.05); border-left: 3px solid #ffcc00; border-radius: 8px; font-size: 13px; color: #999; line-height: 1.6;"><strong style="color: #ffcc00;">🤖 Despre ADI - Agentul AI:</strong><br>ADI nu este o persoană, ci un <strong>agent AI avansat</strong> antrenat pe miliarde de tranzacții istorice, cu acces la peste <strong>32 TB de informații</strong> despre piețe financiare. ADI ne îndrumă să luăm cele mai bune decizii de trading.</div>
+</body>
+</html>

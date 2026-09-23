@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G4Trade Live Terminal</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #050505; color: #00ff41; font-family: 'Courier New', monospace; height: 100%; overflow: hidden; }
+        #term { padding: 70px 15px 15px 15px; height: 100vh; overflow-y: auto; white-space: pre-wrap; font-size: 13px; line-height: 1.4; text-shadow: 0 0 2px #00ff41; }
+        .hdr { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); border-bottom: 1px solid #00ff41; padding: 12px 20px; z-index: 10; display: flex; justify-content: space-between; font-weight: bold; letter-spacing: 1px; }
+        .blink { animation: b 1s infinite; } @keyframes b { 50% { opacity: 0; } }
+        #term::-webkit-scrollbar { width: 8px; } #term::-webkit-scrollbar-thumb { background: #004411; }
+    </style>
+</head>
+<body>
+    <div class="hdr"><span>🟢 G4Trade STRATEGY ENGINE - LIVE FEED</span><span>● CONNECTED <span class="blink">_</span></span></div>
+    <div id="term">Se încarcă log-urile...</div>
+    <script>
+        const t = document.getElementById('term'); let last = 0;
+        setInterval(async () => {
+            try {
+                const r = await fetch('/api/logs?t=' + Date.now());
+                const txt = await r.text();
+                if (txt.length !== last) { t.textContent = txt; last = txt.length; t.scrollTop = t.scrollHeight; }
+            } catch(e) { t.textContent = "Eroare conexiune..."; }
+        }, 1500);
+    </script>
+</body>
+</html>
