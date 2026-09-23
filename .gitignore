@@ -1,0 +1,12 @@
+*.bak_*
+*.bak
+cooldown_state.json
+__pycache__/
+*.pyc
+.env
+*.log
+logs/
+node_modules/
+venv/
+*.sqlite3
+.DS_Store
