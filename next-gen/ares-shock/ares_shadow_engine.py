@@ -33,11 +33,16 @@ def run_ares_shadow_cycle():
     try:
         logging.info("⚔️ Ciclu Ares Shock Engine început...")
         
-        # Preluare date M15 pentru ultimele 60 de zile
-        data = yf.download("GC=F", period="60d", interval="15m", progress=False)
+        # Preluare date M15 pentru ultimele 60 de zile (Folosim Ticker.history pentru a evita MultiIndex)
+        ticker = yf.Ticker("GC=F")
+        data = ticker.history(period="60d", interval="15m")
         if data.empty:
             logging.warning("⚠️ Date M15 lipsă.")
             return
+        
+        # Asigurăm că indexul este sortat corect
+        data.index = pd.to_datetime(data.index)
+        data = data.sort_index()
 
         # Calcul ATR(M15) standard
         data['ATR_14'] = calculate_atr(data, 14)
@@ -46,9 +51,17 @@ def run_ares_shadow_cycle():
         data['ATR_24h_avg'] = data['ATR_14'].rolling(window=96).mean()
         
         # Verificăm ultima lumânare completă (iloc[-2], pentru că -1 e cea curentă, incompletă)
-        last_candle = data.iloc[-2]
-        atr_avg = last_candle['ATR_24h_avg']
-        candle_body = abs(last_candle['Close'] - last_candle['Open'])
+        # Forțăm float() pentru a evita erorile de Series ambigue din yfinance MultiIndex
+        try:
+            last_close = float(data['Close'].iloc[-2])
+            last_open = float(data['Open'].iloc[-2])
+            atr_avg = float(data['ATR_24h_avg'].iloc[-2])
+        except Exception as e:
+            logging.warning(f"⚠️ Eroare la extragerea ultimei lumânări: {e}")
+            logging.warning(f"📊 Date disponibile: {len(data)} rânduri. Coloane: {list(data.columns)[:5]}")
+            return
+        
+        candle_body = abs(last_close - last_open)
         
         if pd.isna(atr_avg) or atr_avg == 0:
             logging.warning("⚠️ ATR invalid.")
@@ -88,4 +101,4 @@ if __name__ == "__main__":
     print("⚔️ ARES Shadow Engine a pornit. Verifică piața la fiecare 15 minute.")
     while True:
         run_ares_shadow_cycle()
-        time.sleep(900) # 15 minute (900 secunde)
+        time.sleep(30) # 15 minute (900 secunde)

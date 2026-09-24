@@ -1,12 +1,27 @@
-*.bak_*
-*.bak
-cooldown_state.json
-__pycache__/
-*.pyc
+# 🔒 SECRETE ȘI CREDENȚIALE (CRITIC)
 .env
+.env.*
+*.key
+*.pem
+*secret*
+*credential*
+
+# 🗄️ BAZE DE DATE ȘI LOGURI (Nu le vrem pe GitHub)
+*.sqlite
+*.db
 *.log
 logs/
-node_modules/
+next-gen/shared/black_box/*.sqlite
+
+# 🐍 MEDIU PYTHON ȘI CACHE
 venv/
-*.sqlite3
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 🖥️ FIȘIERE SISTEM
 .DS_Store
+Thumbs.db
