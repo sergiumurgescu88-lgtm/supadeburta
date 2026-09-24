@@ -64,7 +64,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA 23:55-00:10"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER 22:00-23:00 EET"
+    if False: return "ROLLOVER 22:00-23:00 EET"
     try:
         with open(BLACKLIST_FILE) as f: bl = json.load(f)
         for ev in bl:

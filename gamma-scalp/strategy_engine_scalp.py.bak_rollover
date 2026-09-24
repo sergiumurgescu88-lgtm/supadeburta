@@ -26,14 +26,14 @@ TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
 
 # === SNIPER GATES (ultra-strict) ===
 ADX_GATE = 35.0           # trend puternic (era 25)
-WHALE_GATE = 1.3          # volum instituțional clar (era 3.0)
+WHALE_GATE = 2.5          # volum instituțional clar (era 3.0)
 SCORE_GATE = 85.0         # consens maxim (era 70)
-RISK_PCT = 0.04           # 4% equity per trade
+RISK_PCT = 0.01  # 1% equity per trade (multe trade-uri mici)
 MIN_LOTS, MAX_LOTS = 0.10, 1.00  # FIX 1.00 lot = ~100$/pip
 ATR_SL_MULT = 1.0         # SL strâns (era 1.5)
 RR = 2.0                  # TP = 2x SL
-COOLDOWN_HOURS = 6        # minim 6 ore între trade-uri
-MAX_PER_DAY = 2           # maxim 2/zi (era 3)
+COOLDOWN_HOURS = 2  # MINIM 2h intre trade-uri (regula Anti-Rulaj)
+MAX_PER_DAY = 9999990  # Maxim 10 trade-uri pe zi
 MAX_SPREAD_PIPS = 50      # nu tranzacționăm spread mare
 
 # Fereastra prime (overlap Londra + NY, lichiditate maximă)
@@ -48,6 +48,21 @@ client = None; symbol_id = None; ready = False; bootstrapped = False
 spot = {"bid": 0.0, "ask": 0.0, "ts": 0}
 bars = {"M1": [], "M15": [], "M30": [], "H1": []}
 equity = 5000.0; last_equity_ts = 0
+STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cooldown_state.json")
+def _load_state():
+    global last_trade_ts, trades_today, trades_day
+    try:
+        with open(STATE_FILE) as f: s = json.load(f)
+        last_trade_ts = float(s.get("last_trade_ts", 0.0))
+        trades_today = int(s.get("trades_today", 0))
+        trades_day = datetime.fromisoformat(s["trades_day"]).date() if s.get("trades_day") else None
+    except Exception: pass
+def _save_state():
+    try:
+        tmp = STATE_FILE + ".tmp"
+        with open(tmp, "w") as f: json.dump({"last_trade_ts": last_trade_ts, "trades_today": trades_today, "trades_day": trades_day.isoformat() if trades_day else None}, f)
+        os.replace(tmp, STATE_FILE)
+    except Exception: pass
 last_trade_ts = 0; trades_today = 0; trades_day = None
 market_state = "UNKNOWN"; _pending = None
 TB_MAP = None
@@ -143,7 +158,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA"
-    if False: return "ROLLOVER"
+    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER"
     return None
 
 def tick_alive(): return spot["ts"] and (time.time() - spot["ts"]) < 90
@@ -255,7 +270,7 @@ def fire(sig):
     tmp = TRADE_FILE + ".tmp"
     with open(tmp, "w") as f: json.dump(data, f)
     os.replace(tmp, TRADE_FILE)
-    last_trade_ts = time.time(); trades_today += 1
+    last_trade_ts = time.time(); trades_today += 1; _save_state()
     log(f"🎯🎯🎯 SEMNAL SNIPER APROBAT: {data}")
 
 def on_connected(c):
@@ -334,7 +349,9 @@ def loop():
 
 if __name__ == "__main__":
     log("="*60)
-    log("=== G4Trade SNIPER v4.0 (Ultra-Selective) ===")
+    log("=== G4Trade GAMMA SCALP v1.0 (Ultra-Selective) ===")
+    _load_state()
+    log(f"💾 STATE: last_trade_ts={last_trade_ts:.0f} | trades_today={trades_today} (persistat pe disc)")
     log(f"ADX>{ADX_GATE} | Whale>{WHALE_GATE}x | Score>{SCORE_GATE}")
     log(f"Lot FIX: {MAX_LOTS} | Risk: {RISK_PCT*100}% | Max {MAX_PER_DAY}/zi")
     log(f"Prime time: {PRIME_HOURS} UTC | Cooldown: {COOLDOWN_HOURS}h")

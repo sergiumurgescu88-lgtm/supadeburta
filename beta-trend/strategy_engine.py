@@ -29,7 +29,7 @@ WEEK_CLOSE = (4, 20, 55)
 DAILY_BREAK = ((20, 55), (21, 10))
 ROLLOVER_BLOCK = ((19, 0), (20, 0))
 NEWS_MINUTES = 15
-ADX_GATE, WHALE_GATE, SCORE_GATE = 25.0, 1.5, 65.0
+ADX_GATE, WHALE_GATE, SCORE_GATE = 25.0, 1.8, 65.0
 RISK_PCT = 0.10  # Test Adi: 10% risc per trade pentru a atinge 1 lot
 MIN_LOTS, MAX_LOTS = 1.00, 1.00  # Test Adi: Fortam 1 Lot fix
 ATR_MULT_SL, RR = 1.5, 3.0
@@ -64,7 +64,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA 23:55-00:10"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER 22:00-23:00 EET"
+    if False: return "ROLLOVER 22:00-23:00 EET"
     try:
         with open(BLACKLIST_FILE) as f: bl = json.load(f)
         for ev in bl:

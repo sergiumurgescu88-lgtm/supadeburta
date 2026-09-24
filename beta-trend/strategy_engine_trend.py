@@ -26,7 +26,7 @@ TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
 
 # === SNIPER GATES (ultra-strict) ===
 ADX_GATE = 35.0           # trend puternic (era 25)
-WHALE_GATE = 2.5          # volum instituțional clar (era 3.0)
+WHALE_GATE = 1.8          # volum instituțional clar (era 3.0)
 SCORE_GATE = 85.0         # consens maxim (era 70)
 RISK_PCT = 0.02  # 2% equity per trade (mai conservator pentru swing)
 MIN_LOTS, MAX_LOTS = 0.10, 1.00  # FIX 1.00 lot = ~100$/pip
@@ -158,7 +158,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER"
+    if False: return "ROLLOVER"
     return None
 
 def tick_alive(): return spot["ts"] and (time.time() - spot["ts"]) < 90

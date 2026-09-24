@@ -158,7 +158,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER"
+    if False: return "ROLLOVER"
     return None
 
 def tick_alive(): return spot["ts"] and (time.time() - spot["ts"]) < 90
