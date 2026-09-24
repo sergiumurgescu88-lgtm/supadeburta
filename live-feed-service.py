@@ -3,6 +3,21 @@ from flask_cors import CORS
 import os
 import subprocess
 import re
+# --- MAPPING PENTRU AFISARE ECRAN LIVE (TOȚI CEI 10 BOȚI) ---
+BOT_EMOJIS = {
+    'alpha': '🎯 ALPHA',
+    'beta': '🌊 BETA',
+    'gamma': '👻 GAMMA',
+    'epsilon': '🪤 EPSILON',
+    'sergiu': '👑 SERGIU',
+    'zeus-shadow-engine': '⚡ ZEUS',
+    'ares-shadow-engine': '⚔️ ARES',
+    'chronos-shadow-engine': '⏳ CHRONOS',
+    'hades-shadow-engine': '⚖️ HADES',
+    'hermes-shadow-engine': '👟 HERMES',
+    'live-executor': '🚀 LIVE-EXEC'
+}
+
 
 app = Flask(__name__)
 CORS(app)
@@ -11,7 +26,15 @@ LOG_DIR = "/var/log/trinity"
 LOG_FILES = {
     "alpha": "alpha-engine.log",
     "beta": "beta-engine.log",
-    "gamma": "gamma-engine.log"
+    "gamma": "gamma-engine.log",
+    "epsilon": "epsilon-engine.log",
+    "sergiu": "sergiu-engine.log",
+    "zeus": "/root/trinity-fund/next-gen/zeus-macro/logs/zeus_shadow_engine.log",
+    "ares": "/root/trinity-fund/next-gen/ares-shock/logs/ares_shadow_engine.log",
+    "chronos": "/root/trinity-fund/next-gen/chronos-time/logs/chronos_shadow_engine.log",
+    "hades": "/root/trinity-fund/next-gen/hades-sentinel/logs/hades_shadow_engine.log",
+    "hermes": "/root/trinity-fund/next-gen/hermes-event/logs/hermes_shadow_engine.log",
+    "live-exec": "/root/trinity-fund/next-gen/shared/logs/live_executor_real.log"
 }
 
 @app.route('/api/logs')
