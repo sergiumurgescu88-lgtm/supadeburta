@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+
+
+
+
+
+
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>G4Trade Dashboard</title>
+    <script type="module" crossorigin src="/assets/index-DkRBp1Pn.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BqVQbYQ0.css">
+  
+<style>
+    /* Reset minimal pentru consistență */
+    body { background-color: #0a0a0a !important; color: #e0e0e0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; padding-top: 60px !important; }
+    
+    /* Bara de Navigare Unificată */
+    .g4trade-nav {
+        position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+        z-index: 99999 !important; background: rgba(10, 10, 10, 0.98) !important;
+        border-bottom: 1px solid #333 !important; backdrop-filter: blur(10px) !important;
+        display: flex !important; justify-content: space-around !important;
+        align-items: center !important; padding: 8px 4px !important; gap: 4px !important;
+    }
+    .g4trade-nav a {
+        flex: 1 !important; text-align: center !important; padding: 10px 4px !important;
+        border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important;
+        text-decoration: none !important; white-space: nowrap !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    }
+    .btn-live { background: #ffcc00 !important; color: #000 !important; }
+    .btn-stats { background: #00ff41 !important; color: #000 !important; }
+    .btn-docs { background: #0066cc !important; color: #fff !important; }
+    .btn-news { background: #ff4444 !important; color: #fff !important; }
+</style>
+
+</head>
+  <body>
+<div class="g4trade-nav">
+    <a href="https://g4trade.online/" class="btn-live">🔴 LIVE</a>
+    <a href="https://stats.g4trade.online/" class="btn-stats">📊 STATS</a>
+    <a href="https://doc.g4trade.online/" class="btn-docs">📚 DOCS</a>
+    <a href="https://news.g4trade.online/" class="btn-news">📰 NEWS</a>
+</div>
+
+
+<!-- G4Trade Nav -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="root"></div>
+  
+    
+
+
+
+<div id="g4-terminal" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 35vh; min-height: 120px; background: #050505; border-top: 2px solid #00ff41; z-index: 9999999; display: flex; flex-direction: column; font-family: 'Courier New', monospace; box-shadow: 0 -5px 25px rgba(0,0,0,0.9);">
+    <div id="g4-term-resize" style="position: absolute; top: -8px; left: 0; right: 0; height: 14px; cursor: ns-resize; z-index: 10; touch-action: none;"></div>
+    <div id="g4-term-header" style="background: #000; color: #00ff41; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #004411; font-size: 14px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;">
+        <span>🟢 G4Trade LIVE</span>
+        <div>
+            <button id="g4-term-fullscreen" style="background:none; border:1px solid #00ff41; color:#00ff41; cursor:pointer; padding: 4px 10px; border-radius: 4px; font-size: 12px; margin-right: 8px;">&#x26F6; Fullscreen</button>
+            <button id="g4-term-toggle" style="background:none; border:1px solid #00ff41; color:#00ff41; cursor:pointer; padding: 4px 10px; border-radius: 4px; font-size: 12px;">Minimize</button>
+        </div>
+    </div>
+    <div id="g4-term-logs" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; color: #00ff41; font-size: 13px; white-space: pre-wrap; word-break: break-all; text-shadow: 0 0 2px #00ff41; line-height: 1.5;">
+        Loading logs...
+    </div>
+</div>
+<style>
+    #g4-terminal.minimized { transform: translateY(calc(100% - 45px)); }
+    #g4-terminal.minimized #g4-term-logs { display: none; }
+    #g4-terminal.fullscreen { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100vh !important; height: 100dvh !important; max-height: none !important; z-index: 99999999 !important; }
+    #g4-terminal.fullscreen #g4-term-resize { display: none; }
+    @media (max-width: 768px) { #g4-term-logs { font-size: 14px !important; padding: 12px !important; } }
+</style>
+<script>
+(function() {
+    if (window.g4TerminalLoaded) return;
+    window.g4TerminalLoaded = true;
+    var terminal = document.getElementById('g4-terminal');
+    var header = document.getElementById('g4-term-header');
+    var handle = document.getElementById('g4-term-resize');
+    var toggleBtn = document.getElementById('g4-term-toggle');
+    var fsBtn = document.getElementById('g4-term-fullscreen');
+    var logs = document.getElementById('g4-term-logs');
+    var saved = localStorage.getItem('g4TermHeight');
+    if (saved) terminal.style.height = saved + 'px';
+
+    var resizing = false, startY = 0, startH = 0;
+    function move(clientY) {
+        var nh = startH + (startY - clientY);
+        var max = window.innerHeight - 60;
+        if (nh < 120) nh = 120;
+        if (nh > max) nh = max;
+        terminal.style.height = nh + 'px';
+        localStorage.setItem('g4TermHeight', nh);
+    }
+    handle.addEventListener('mousedown', function(e){ resizing = true; startY = e.clientY; startH = terminal.offsetHeight; e.preventDefault(); });
+    document.addEventListener('mousemove', function(e){ if (resizing) move(e.clientY); });
+    document.addEventListener('mouseup', function(){ resizing = false; });
+    handle.addEventListener('touchstart', function(e){ resizing = true; startY = e.touches[0].clientY; startH = terminal.offsetHeight; e.preventDefault(); }, {passive:false});
+    document.addEventListener('touchmove', function(e){ if (resizing) { move(e.touches[0].clientY); e.preventDefault(); } }, {passive:false});
+    document.addEventListener('touchend', function(){ resizing = false; });
+
+    header.addEventListener('click', function(e){ if (e.target.tagName !== 'BUTTON') terminal.classList.toggle('minimized'); });
+    toggleBtn.addEventListener('click', function(e){ e.stopPropagation(); terminal.classList.toggle('minimized'); });
+    function setFs(on) {
+        terminal.classList.toggle('fullscreen', on);
+        fsBtn.innerHTML = on ? '&#x2715; Exit' : '&#x26F6; Fullscreen';
+    }
+    fsBtn.addEventListener('click', function(e){ e.stopPropagation(); setFs(!terminal.classList.contains('fullscreen')); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') setFs(false); });
+
+    var lastLen = 0, userUp = false;
+    logs.addEventListener('scroll', function(){ userUp = (logs.scrollHeight - logs.scrollTop - logs.clientHeight) > 60; });
+    setInterval(function(){
+        fetch('/api/trading/logs?t=' + Date.now()).then(function(r){ return r.text(); }).then(function(txt){
+            if (txt.length !== lastLen) {
+                logs.textContent = txt; lastLen = txt.length;
+                if (!userUp) logs.scrollTop = logs.scrollHeight;
+            }
+        }).catch(function(){});
+    }, 2000);
+})();
+</script>
+<!-- End G4Trade Terminal -->
+
+</body>
+</html>
