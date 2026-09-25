@@ -1,4 +1,4 @@
-# 🔒 SECRETE ȘI CREDENȚIALE (CRITIC)
+# 🔒 SECRETE ȘI CREDENȚIALE
 .env
 .env.*
 *.key
@@ -6,22 +6,21 @@
 *secret*
 *credential*
 
-# 🗄️ BAZE DE DATE ȘI LOGURI (Nu le vrem pe GitHub)
+# 🗄️ BAZE DE DATE ȘI LOGURI (NU le trimitem pe GitHub)
 *.sqlite
 *.db
 *.log
 logs/
 next-gen/shared/black_box/*.sqlite
 
-# 🐍 MEDIU PYTHON ȘI CACHE
+# 🐍 MEDIU PYTHON
 venv/
 env/
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 .Python
 
-# 🖥️ FIȘIERE SISTEM
+# 🖥️ SISTEM
 .DS_Store
 Thumbs.db

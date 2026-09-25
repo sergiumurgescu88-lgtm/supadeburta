@@ -1,78 +1,84 @@
-import requests
+import urllib.request
+import urllib.error
+import xml.etree.ElementTree as ET
 import sqlite3
 import logging
 import os
 import time
-import xml.etree.ElementTree as ET
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
+FF_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml"
 DB_PATH = "/root/trinity-fund/next-gen/shared/black_box/context_db.sqlite"
 log_dir = "/root/trinity-fund/next-gen/shared/logs"
 os.makedirs(log_dir, exist_ok=True)
+
 logging.basicConfig(
     filename=os.path.join(log_dir, "hermes_feed.log"),
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-FF_XML_URL = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml"
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-
-def get_text(event, tag):
-    el = event.find(tag)
-    return el.text.strip() if el is not None and el.text else ""
-
-def safe_float(val):
-    if val in [None, "", "N/A"]:
-        return None
-    try:
-        return float(str(val).replace('%', '').strip())
-    except ValueError:
-        return None
-
 def fetch_and_update_calendar():
     try:
-        logging.info("Interogare Forex Factory Calendar...")
-        response = requests.get(FF_XML_URL, headers=HEADERS, timeout=15)
-        response.raise_for_status()
-        root = ET.fromstring(response.content)
+        logging.info("📥 Descărcare Calendar Forex Factory...")
+        # User-Agent complet pentru a părea un browser real
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        req = urllib.request.Request(FF_URL, headers=headers)
+        
+        with urllib.request.urlopen(req, timeout=15) as response:
+            xml_data = response.read()
+            
+        root = ET.fromstring(xml_data)
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         updated_count = 0
-        for event in root.findall('event'):
-            title = get_text(event, 'title')
-            date_str = get_text(event, 'date')
-            time_str = get_text(event, 'time')
-            impact = get_text(event, 'impact').upper()
-            country = get_text(event, 'country')
-            actual = get_text(event, 'actual')
-            forecast = get_text(event, 'forecast')
-            if not title or not date_str:
-                continue
-            try:
-                if time_str:
-                    dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
-                else:
-                    dt = datetime.strptime(date_str, "%Y-%m-%d")
-                event_time = dt.strftime('%Y-%m-%d %H:%M:%S')
-            except Exception:
-                event_time = f"{date_str} {time_str}".strip()
-            impact_mapped = impact if impact in ["HIGH", "MEDIUM", "LOW"] else "MEDIUM"
-            cursor.execute("""
-                INSERT OR REPLACE INTO economic_calendar
-                (event_name, event_time, forecast, actual, currency, impact)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (title, event_time, safe_float(forecast), safe_float(actual), country, impact_mapped))
-            updated_count += 1
+
+        # Căutăm flexibil tag-ul 'event' sau 'calendar'
+        for element in root.iter():
+            if element.tag.endswith('event') or element.tag == 'event':
+                country = element.find('country').text if element.find('country') is not None else "USD"
+                date_str = element.find('date').text if element.find('date') is not None else ""
+                time_str = element.find('time').text if element.find('time') is not None else ""
+                
+                # Uneori numele este în tag-ul 'title', alteori în 'event'
+                name_elem = element.find('event')
+                if name_elem is None:
+                    name_elem = element.find('title')
+                event_name = name_elem.text if name_elem is not None else "Unknown Event"
+                
+                impact = element.find('impact').text if element.find('impact') is not None else "Medium"
+                forecast = element.find('forecast').text if element.find('forecast') is not None else None
+                actual = element.find('actual').text if element.find('actual') is not None else None
+                
+                event_time = f"{date_str} {time_str}:00" if date_str and time_str else date_str
+                
+                if forecast: forecast = str(forecast).replace('%', '').strip()
+                if actual: actual = str(actual).replace('%', '').strip()
+
+                cursor.execute("""
+                    INSERT OR REPLACE INTO economic_calendar 
+                    (event_name, event_time, forecast, actual, currency, impact)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (event_name, event_time, forecast, actual, country, impact.upper()))
+                updated_count += 1
+
         conn.commit()
         conn.close()
-        logging.info(f"Calendar actualizat: {updated_count} evenimente.")
+        logging.info(f"✅ Calendar actualizat: {updated_count} evenimente.")
+
+    except urllib.error.HTTPError as e:
+        if e.code == 429:
+            logging.warning("⚠️ Forex Factory ne-a blocat temporar (429). Păstrăm datele anterioare și vom încerca din nou la următorul ciclu (12h).")
+        else:
+            logging.error(f"❌ Eroare HTTP: {e}")
     except Exception as e:
-        logging.error(f"Eroare: {e}")
+        logging.error(f"❌ Eroare procesare: {e}")
 
 if __name__ == "__main__":
-    logging.info("Hermes Feed Calendar pornit.")
+    logging.info("🚀 Hermes Feed Calendar (Mod Politicos) pornit.")
     fetch_and_update_calendar()
+    
+    # Actualizare la fiecare 12 ore (43200 secunde) pentru a nu fi blocați
     while True:
-        time.sleep(3600)
+        time.sleep(43200)
         fetch_and_update_calendar()
