@@ -1,3 +1,4 @@
+MAX_SPREAD_PIPS = 50  # Siguranță: Nu executăm dacă spread > 50 pips
 import os
 import sqlite3
 import time

@@ -26,7 +26,7 @@ TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
 
 # === SNIPER GATES (ultra-strict) ===
 ADX_GATE = 35.0           # trend puternic (era 25)
-WHALE_GATE = 3.0          # volum instituțional clar (era 3.0)
+WHALE_GATE = 1.6          # volum instituțional clar (era 3.0)
 SCORE_GATE = 85.0         # consens maxim (era 70)
 RISK_PCT = 0.04           # 4% equity per trade
 MIN_LOTS, MAX_LOTS = 0.10, 0.500  # FIX 1.00 lot = ~100$/pip
