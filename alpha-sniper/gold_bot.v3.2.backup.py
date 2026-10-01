@@ -34,7 +34,7 @@ ACCOUNT_ID = int(env.get("CT_ACCOUNT_ID", "48710563"))
 
 MAX_VOLUME = 1.00  # Test Adi: 1 Lot
 SYMBOL_NAME = "XAUUSD"
-TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
+TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/alpha_request.json"
 PROCESSED_FILE = TRADE_FILE + ".processed"
 
 ORDER_TYPE_MARKET = 1

@@ -32,9 +32,9 @@ CLIENT_SECRET = env.get("CT_CLIENT_SECRET", "")
 ACCESS_TOKEN = env.get("CT_ACCESS_TOKEN", "")
 ACCOUNT_ID = int(env.get("CT_ACCOUNT_ID", "48710563"))
 
-MAX_VOLUME = 1.00  # Sniper safe
+MAX_VOLUME = 1.00  # TEST CAP: Permite volume pana la 2.0
 SYMBOL_NAME = "XAUUSD"
-TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
+TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/gamma_request.json"
 PROCESSED_FILE = TRADE_FILE + ".processed"
 
 ORDER_TYPE_MARKET = 1
@@ -77,13 +77,13 @@ def validate_trade(data):
         return False, "Invalid volume"
     
     sl = float(data.get('stopLoss', 0) or data.get('sl', 0) or 0)
-    if sl <= 0:
-        return False, "🛡️ REJECTED: Stop Loss must be > 0"
+#    if sl <= 0:
+    pass  # DISABLED: Allow trade without SL
     data['_sl'] = sl
     
     tp = float(data.get('takeProfit', 0) or data.get('tp', 0) or 0)
-    if tp <= 0:
-        return False, "🛡️ REJECTED: Take Profit must be > 0"
+#    if tp <= 0:
+    pass  # DISABLED: Allow trade without TP
     data['_tp'] = tp
     
     return True, ""
@@ -122,6 +122,11 @@ def send_market_order(trade_data):
     if trade_data.get('comment'):
         r.label = str(trade_data['comment'])[:50]
     
+    # 🛡️ FIX ARHITECT: SL/TP direct în cererea inițială
+    if trade_data.get('_sl') and float(trade_data.get('_sl', 0)) > 0:
+        r.stopLoss = float(trade_data['_sl'])
+    if trade_data.get('_tp') and float(trade_data.get('_tp', 0)) > 0:
+        r.takeProfit = float(trade_data['_tp'])
     send(r)
 
 def apply_sl_tp(position_id, sl, tp):

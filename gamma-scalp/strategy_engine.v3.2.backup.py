@@ -23,7 +23,7 @@ ACCESS_TOKEN = env["CT_ACCESS_TOKEN"]
 ACCOUNT_ID = int(env.get("CT_ACCOUNT_ID", "48710563"))
 
 SYMBOL = "XAUUSD"
-TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
+TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/gamma_request.json"
 BLACKLIST_FILE = "/root/ctrader-g4trade-bot/news_blacklist.json"
 WEEK_CLOSE = (4, 20, 55)
 DAILY_BREAK = ((20, 55), (21, 10))
@@ -64,7 +64,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA 23:55-00:10"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER 22:00-23:00 EET"
+    pass  # ROLLOVER disabled
     try:
         with open(BLACKLIST_FILE) as f: bl = json.load(f)
         for ev in bl:

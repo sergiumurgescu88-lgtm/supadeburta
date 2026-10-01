@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+
+
+
+
+
+
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>G4Trade Dashboard</title>
+    <script type="module" crossorigin src="/assets/index-DkRBp1Pn.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BqVQbYQ0.css">
+  
+<style>
+    /* Reset minimal pentru consistență */
+    body { background-color: #0a0a0a !important; color: #e0e0e0 !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; padding-top: 60px !important; }
+    
+    /* Bara de Navigare Unificată */
+    .g4trade-nav {
+        position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+        z-index: 99999 !important; background: rgba(10, 10, 10, 0.98) !important;
+        border-bottom: 1px solid #333 !important; backdrop-filter: blur(10px) !important;
+        display: flex !important; justify-content: space-around !important;
+        align-items: center !important; padding: 8px 4px !important; gap: 4px !important;
+    }
+    .g4trade-nav a {
+        flex: 1 !important; text-align: center !important; padding: 10px 4px !important;
+        border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important;
+        text-decoration: none !important; white-space: nowrap !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    }
+    .btn-live { background: #ffcc00 !important; color: #000 !important; }
+    .btn-stats { background: #00ff41 !important; color: #000 !important; }
+    .btn-docs { background: #0066cc !important; color: #fff !important; }
+    .btn-news { background: #ff4444 !important; color: #fff !important; }
+</style>
+
+</head>
+  <body>
+<div class="g4trade-nav">
+    <a href="https://g4trade.online/" class="btn-live">🔴 LIVE</a>
+    <a href="https://stats.g4trade.online/" class="btn-stats">📊 STATS</a>
+    <a href="https://doc.g4trade.online/" class="btn-docs">📚 DOCS</a>
+    <a href="https://news.g4trade.online/" class="btn-news">📰 NEWS</a>
+</div>
+
+
+<!-- G4Trade Nav -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="root"></div>
+  
+    
+
+
+
+<div id="g4-terminal" style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 35vh; max-height: 300px; background: #050505; border-top: 2px solid #00ff41; z-index: 9999999; display: flex; flex-direction: column; font-family: 'Courier New', monospace; box-shadow: 0 -5px 25px rgba(0,0,0,0.9); transition: transform 0.3s ease;">
+    <div id="g4-term-header" style="background: #000; color: #00ff41; padding: 10px 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #004411; font-size: 14px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;">
+        <span>🟢 G4Trade LIVE</span>
+        <button id="g4-term-toggle" style="background:none; border:1px solid #00ff41; color:#00ff41; cursor:pointer; padding: 4px 10px; border-radius: 4px; font-size: 12px;">Minimize</button>
+    </div>
+    <div id="g4-term-logs" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px; color: #00ff41; font-size: 13px; white-space: pre-wrap; word-break: break-all; text-shadow: 0 0 2px #00ff41; line-height: 1.5;">
+        Loading logs...
+    </div>
+</div>
+<style>@media (width<=768px){#g4-terminal{height:40vh;max-height:350px}#g4-term-logs{padding:12px!important;font-size:14px!important}}#g4-terminal.minimized{transform:translateY(calc(100% - 45px))}#g4-terminal.minimized #g4-term-logs{display:none}.btn-news{color:#fff!important;background:#f44!important}</style>
+<script>
+(function() {
+    // Protecție împotriva încărcării duble
+    if (window.g4TerminalLoaded) return;
+    window.g4TerminalLoaded = true;
+
+    const header = document.getElementById('g4-term-header');
+    if(header) {
+        header.addEventListener('click', function(e) {
+            if(e.target.tagName !== 'BUTTON') {
+                document.getElementById('g4-terminal').classList.toggle('minimized');
+            }
+        });
+    }
+    const toggleBtn = document.getElementById('g4-term-toggle');
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('g4-terminal').classList.toggle('minimized');
+        });
+    }
+    const g4t = document.getElementById('g4-term-logs'); 
+    let g4last = 0;
+    setInterval(async () => {
+        try {
+            const r = await fetch('/api/trading/logs?t=' + Date.now());
+            const txt = await r.text();
+            if (txt.length !== g4last) { g4t.textContent = txt; g4last = txt.length; g4t.scrollTop = g4t.scrollHeight; }
+        } catch(e) {}
+    }, 2000);
+})();
+</script>
+<!-- End G4Trade Terminal -->
+
+</body>
+</html>

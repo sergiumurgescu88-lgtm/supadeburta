@@ -22,17 +22,17 @@ ACCESS_TOKEN = env["CT_ACCESS_TOKEN"]
 ACCOUNT_ID = int(env.get("CT_ACCOUNT_ID", "48710563"))
 
 SYMBOL = "XAUUSD"
-TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
+TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/gamma_request.json"
 
 # === SNIPER GATES (ultra-strict) ===
-ADX_GATE = 35.0           # trend puternic (era 25)
-WHALE_GATE = 2.5          # volum instituțional clar (era 3.0)
-SCORE_GATE = 85.0         # consens maxim (era 70)
+ADX_GATE = 22.0
+WHALE_GATE = 1.11
+SCORE_GATE = 50         # consens maxim (era 70)
 RISK_PCT = 0.01  # 1% equity per trade (multe trade-uri mici)
-MIN_LOTS, MAX_LOTS = 0.10, 1.00  # FIX 1.00 lot = ~100$/pip
+MIN_LOTS, MAX_LOTS = 1.00, 1.00  # TEST GAMMA
 ATR_SL_MULT = 1.0         # SL strâns (era 1.5)
 RR = 2.0                  # TP = 2x SL
-COOLDOWN_HOURS = 2  # MINIM 2h intre trade-uri (regula Anti-Rulaj)
+COOLDOWN_HOURS = 0.5  # MINIM 2h intre trade-uri (regula Anti-Rulaj)
 MAX_PER_DAY = 9999990  # Maxim 10 trade-uri pe zi
 MAX_SPREAD_PIPS = 50      # nu tranzacționăm spread mare
 
@@ -158,7 +158,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER"
+    pass  # ROLLOVER disabled
     return None
 
 def tick_alive(): return spot["ts"] and (time.time() - spot["ts"]) < 90
@@ -261,9 +261,10 @@ def evaluate():
     # Netting check
     send(ProtoOAReconcileReq(ctidTraderAccountId=ACCOUNT_ID))
     _pending = {"side": side, "volume": lots, "stopLoss": sl, "takeProfit": tp, "score": round(score)}
+    fire(_pending)
 
 def fire(sig):
-    global last_trade_ts, trades_today
+    global last_trade_ts, trades_today, _pending
     data = {"action": "create", "approved": True, "symbol": SYMBOL, "side": sig["side"],
             "volume": sig["volume"], "stopLoss": sig["stopLoss"], "takeProfit": sig["takeProfit"],
             "comment": f"SNIPER v4.0 score={sig['score']}"}
@@ -271,6 +272,7 @@ def fire(sig):
     with open(tmp, "w") as f: json.dump(data, f)
     os.replace(tmp, TRADE_FILE)
     last_trade_ts = time.time(); trades_today += 1; _save_state()
+    _pending = None  # ANTI-DOUBLE-TRADE: Semnal consumat
     log(f"🎯🎯🎯 SEMNAL SNIPER APROBAT: {data}")
 
 def on_connected(c):
@@ -327,10 +329,11 @@ def on_message(c, message):
         elif name == "ProtoOAReconcileRes":
             ops = [p for p in m.position if getattr(p.tradeData, "symbolId", None) == symbol_id]
             if ops:
-                log(f"⛔ Poziție {SYMBOL} deschisă ({len(ops)}) - semnal anulat")
-                _pending = None
-            elif _pending:
-                fire(_pending); _pending = None
+                pass  # Bot independent, nu anulam semnalul
+                # log(f"⛔ Poziție {SYMBOL} deschisă ({len(ops)}) - semnal anulat")  # DEZACTIVAT: Bot independent
+                # _pending = None  # DEZACTIVAT: Bot independent
+            if _pending:
+                pass
     except Exception as e:
         log(f"Err mesaj: {e}")
 

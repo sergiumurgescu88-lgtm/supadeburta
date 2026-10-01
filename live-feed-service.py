@@ -24,11 +24,11 @@ CORS(app)
 
 LOG_DIR = "/var/log/trinity"
 LOG_FILES = {
-    "alpha": "alpha-engine.log",
-    "beta": "beta-engine.log",
-    "gamma": "gamma-engine.log",
-    "epsilon": "epsilon-engine.log",
-    "sergiu": "sergiu-engine.log",
+    "alpha": "/root/.pm2/logs/alpha-sniper-engine-error.log",
+    "beta": "/root/.pm2/logs/beta-trend-engine-error.log",
+    "gamma": "/root/.pm2/logs/gamma-scalp-engine-error.log",
+    "epsilon": "/root/.pm2/logs/epsilon-strategy-engine-error.log",
+    "sergiu": "/root/.pm2/logs/sergiu-strategy-engine-error.log",
     "zeus": "/root/trinity-fund/next-gen/zeus-macro/logs/zeus_shadow_engine.log",
     "ares": "/root/trinity-fund/next-gen/ares-shock/logs/ares_shadow_engine.log",
     "chronos": "/root/trinity-fund/next-gen/chronos-time/logs/chronos_shadow_engine.log",

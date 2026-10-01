@@ -31,7 +31,7 @@ def check_time_windows():
         windows = {
             "LBMA_AM_FIXING": (555, 585),   # 09:15 - 09:45
             "LBMA_PM_FIXING": (885, 915),   # 14:45 - 15:15
-            "ROLLOVER_RISK": (1260, 1320)   # 21:00 - 22:00
+            # # # "ROLLOVER_RISK": (1260, 1320)   # 21:00 - 22:00 - BYPASS
         }
         
         active_window = None

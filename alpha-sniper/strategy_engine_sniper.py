@@ -22,17 +22,17 @@ ACCESS_TOKEN = env["CT_ACCESS_TOKEN"]
 ACCOUNT_ID = int(env.get("CT_ACCOUNT_ID", "48710563"))
 
 SYMBOL = "XAUUSD"
-TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/trade_request.json"
+TRADE_FILE = "/root/ctrader-g4trade-bot/dashboard/static/alpha_request.json"
 
 # === SNIPER GATES (ultra-strict) ===
-ADX_GATE = 35.0           # trend puternic (era 25)
-WHALE_GATE = 3.0          # volum instituțional clar (era 3.0)
-SCORE_GATE = 85.0         # consens maxim (era 70)
+ADX_GATE = 24.0
+WHALE_GATE = 1.22
+SCORE_GATE = 50         # consens maxim (era 70)
 RISK_PCT = 0.04           # 4% equity per trade
-MIN_LOTS, MAX_LOTS = 0.10, 0.500  # FIX 1.00 lot = ~100$/pip
+MIN_LOTS, MAX_LOTS = 1.00, 1.00  # TEST ALPHA
 ATR_SL_MULT = 1.0         # SL strâns (era 1.5)
 RR = 2.0                  # TP = 2x SL
-COOLDOWN_HOURS = 2        # minim 6 ore între trade-uri
+COOLDOWN_HOURS = 0.5        # minim 6 ore între trade-uri
 MAX_PER_DAY = 999999           # maxim 2/zi (era 3)
 MAX_SPREAD_PIPS = 50      # nu tranzacționăm spread mare
 
@@ -158,7 +158,7 @@ def market_state_now():
 def blocked_now():
     n = now()
     if in_window(n, DAILY_BREAK): return "PAUZA ZILNICA"
-    if in_window(n, ROLLOVER_BLOCK): return "ROLLOVER"
+    pass  # ROLLOVER disabled
     return None
 
 def tick_alive(): return spot["ts"] and (time.time() - spot["ts"]) < 90
@@ -170,6 +170,23 @@ def h1_alignment():
     if a < ADX_GATE: return False, a, "BUY"
     side = "BUY" if p >= m else "SELL"
     return True, a, side
+
+
+def rsi(bs, period=14):
+    if len(bs) < period + 1: return 50.0
+    gains, losses = [], []
+    for i in range(1, len(bs)):
+        delta = bs[i]["c"] - bs[i-1]["c"]
+        gains.append(max(0, delta))
+        losses.append(max(0, -delta))
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period-1) + gains[i]) / period
+        avg_loss = (avg_loss * (period-1) + losses[i]) / period
+    if avg_loss == 0: return 100.0
+    rs = avg_gain / avg_loss
+    return 100 - (100 / (1 + rs))
 
 def evaluate():
     global market_state, last_trade_ts, trades_today, trades_day, _pending
@@ -249,6 +266,33 @@ def evaluate():
     lots = MAX_LOTS  # FIX 1.00
     tp = round(entry + dist*RR, 2) if side == "BUY" else round(entry - dist*RR, 2)
 
+    
+    # Pilon 6: RSI Filter (Overbought/Oversold)
+    rsi_val = rsi(bars["M15"])
+    if side == "BUY" and rsi_val > 70:
+        log(f"⚠️ RSI overbought: {rsi_val:.1f}. Așteptăm pullback.")
+        return
+    if side == "SELL" and rsi_val < 30:
+        log(f"⚠️ RSI oversold: {rsi_val:.1f}. Așteptăm pullback.")
+        return
+
+    # Pilon 7: M1 Entry Timing Confirmation
+    m1_candle = bars["M1"][-1]
+    m1_side = "BUY" if m1_candle["c"] > m1_candle["o"] else "SELL"
+    if m1_side != side:
+        log(f"⏳ M1 nu confirmă direcția ({m1_side} vs {side}). Așteptăm.")
+        return
+
+    # Pilon 8: Support/Resistance (H1 extremes)
+    h1_high = max(b["h"] for b in bars["H1"][-50:])
+    h1_low = min(b["l"] for b in bars["H1"][-50:])
+    if side == "BUY" and entry > h1_high * 0.995:
+        log(f"⚠️ Preț prea aproape de rezistență H1 ({h1_high:.2f}). Așteptăm.")
+        return
+    if side == "SELL" and entry < h1_low * 1.005:
+        log(f"⚠️ Preț prea aproape de suport H1 ({h1_low:.2f}). Așteptăm.")
+        return
+
     # Scor final
     score = 20 + (25 if wr >= 7 else 20 if wr >= 5 else 0) + \
             (25*min(a15/45, 1)) + (15*min(a30/45, 1)) + (15 if h1_adx > 40 else 10)
@@ -261,9 +305,10 @@ def evaluate():
     # Netting check
     send(ProtoOAReconcileReq(ctidTraderAccountId=ACCOUNT_ID))
     _pending = {"side": side, "volume": lots, "stopLoss": sl, "takeProfit": tp, "score": round(score)}
+    fire(_pending)
 
 def fire(sig):
-    global last_trade_ts, trades_today
+    global last_trade_ts, trades_today, _pending
     data = {"action": "create", "approved": True, "symbol": SYMBOL, "side": sig["side"],
             "volume": sig["volume"], "stopLoss": sig["stopLoss"], "takeProfit": sig["takeProfit"],
             "comment": f"SNIPER v4.0 score={sig['score']}"}
@@ -271,6 +316,7 @@ def fire(sig):
     with open(tmp, "w") as f: json.dump(data, f)
     os.replace(tmp, TRADE_FILE)
     last_trade_ts = time.time(); trades_today += 1; _save_state()
+    _pending = None  # ANTI-DOUBLE-TRADE: Semnal consumat
     log(f"🎯🎯🎯 SEMNAL SNIPER APROBAT: {data}")
 
 def on_connected(c):
@@ -327,10 +373,11 @@ def on_message(c, message):
         elif name == "ProtoOAReconcileRes":
             ops = [p for p in m.position if getattr(p.tradeData, "symbolId", None) == symbol_id]
             if ops:
-                log(f"⛔ Poziție {SYMBOL} deschisă ({len(ops)}) - semnal anulat")
-                _pending = None
-            elif _pending:
-                fire(_pending); _pending = None
+                pass  # Bot independent, nu anulam semnalul
+                # log(f"⛔ Poziție {SYMBOL} deschisă ({len(ops)}) - semnal anulat")  # DEZACTIVAT: Bot independent
+                # _pending = None  # DEZACTIVAT: Bot independent
+            if _pending:
+                pass
     except Exception as e:
         log(f"Err mesaj: {e}")
 

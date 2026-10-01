@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arhitectură Instituțională G4Trade v3.2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .header .subtitle {
+            font-size: 1.1em;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .stat-label { font-size: 0.85em; color: #94a3b8; }
+        .stat-value { font-size: 1.5em; font-weight: bold; color: #3b82f6; }
+        .section {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 30px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+        .section h2 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .section p { color: #cbd5e1; margin-bottom: 10px; }
+        .update-alert {
+            margin-top: 40px;
+            padding: 25px;
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            background: rgba(220, 38, 38, 0.1);
+            color: #fca5a5;
+        }
+        .update-alert h3 {
+            color: #dc2626;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #dc2626;
+            padding-bottom: 10px;
+        }
+        .update-alert ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .update-alert li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .update-alert li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .param-box {
+            background: #dc2626;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .param-label { font-size: 0.85em; opacity: 0.9; }
+        .param-value { font-size: 1.3em; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Arhitectură Instituțională G4Trade v3.2</h1>
+            <p class="subtitle">Versiune matură, optimizată pe baza a 1127 de tranzacții backtestate (Ian-Sept 2026)</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Profit Factor</div>
+                    <div class="stat-value">1.28</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Sharpe Ratio</div>
+                    <div class="stat-value">7.12</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Tranzacții Backtest</div>
+                    <div class="stat-value">1127</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>1. Filtru Macro & Protecție Rollover (22:00 EET)</h2>
+            <p>Sistemul se activează la 22:00 pentru a monitoriza fereastra critică de Rollover bancar (când lichiditatea scade și spread-urile se lărgesc artificial). Filtrul Macro blochează automat intrările cu 15 minute înainte și după știrile de impact major (NFP, CPI, Fed), eliminând riscul de slippage și protejând capitalul de volatilitatea haotică.</p>
+        </div>
+
+        <div class="section">
+            <h2>2. Radar Smart Money (Whale & Delta Volume)</h2>
+            <p>Analizăm fluxul de ordine în timp real. Detectorul identifică spike-uri de volum <strong>>150% față de medie</strong> (actualizat de la 300%), confirmând prezența lichidității instituționale ("amprenta balenelor"). Nu ghicim suportul; vedem unde marii jucători își plasează ordinele, permițându-ne să țintim un Risk:Reward de 1:3 sau 1:4.</p>
+        </div>
+
+        <div class="section">
+            <h2>3. Confirmare Multi-Timeframe (M15/M30)</h2>
+            <p>Motorul agregă tick-urile și calculează ADX pe timeframe-urile M15 și M30. Intrarea este aprobată doar dacă ADX > 25 pe cel puțin unul dintre aceste timeframe-uri, confirmând un trend puternic și filtrând piețele laterale. Această abordare multi-timeframe elimină fals-pozitivele de pe M1.</p>
+        </div>
+
+        <div class="section">
+            <h2>4. Dynamic Position Sizing (Risk Management)</h2>
+            <p>Volumul trade-ului este calculat dinamic (nu fix) pe baza riscului de 1% per trade și a distanței până la Stop Loss. Dacă volatilitatea este mare (SL departe), volumul scade automat. Dacă trendul este clar (SL aproape), volumul crește. Astfel, riscul rămâne constant indiferent de condițiile pieței.</p>
+        </div>
+
+        <div class="section">
+            <h2>5. Motorul de Consens în Cascadă (Scor > 65)</h2>
+            <p>Niciun trade nu este executat "orb". Setup-ul trebuie să treacă de 4 filtre ierarhice: (1) Calendar Macro Liber, (2) Confirmare Trend Multi-Timeframe, (3) Dynamic Position Sizing Valid, (4) Whale Detection (bonus de scor). Doar dacă Scorul de Consens depășește <strong>65/100</strong> (actualizat de la 70), ordinul este aprobat. Această cascadă elimină fals-pozitivele și protejează capitalul.</p>
+        </div>
+
+        <div class="section">
+            <h2>6. Arhitectură Decuplată & Securitate</h2>
+            <p>Frontend-ul React comunică securizat cu motorul Python printr-un API Gateway izolat. Conectivitatea cu brokerul (cTrader Open API) este gestionată exclusiv la nivel de server, criptată end-to-end. Cheile API și logica de trading nu sunt niciodată expuse în browser.</p>
+        </div>
+
+        <div class="update-alert">
+            <h3>📢 ULTIMUL UPDATE DE SISTEM: 2026-09-21 15:38</h3>
+            <p style="font-weight: bold; margin-bottom: 15px;">✅ Strategie actualizată cu succes!</p>
+            <ul>
+                <li>Whale gate: 3.0x → 1.5x (acum este bonus de scor, nu condiție obligatorie)</li>
+                <li>Score gate: 70.0 → 65.0 (permite intrarea pe trend puternic chiar și fără whale)</li>
+                <li>Condiția de intrare nu mai cere obligatoriu whale_ok (trendul puternic ADX > 50 este suficient)</li>
+            </ul>
+            <div class="params-grid">
+                <div class="param-box">
+                    <div class="param-label">ADX Gate</div>
+                    <div class="param-value">25.0</div>
+                </div>
+                <div class="param-box">
+                    <div class="param-label">Whale Gate</div>
+                    <div class="param-value">1.5x</div>
+                </div>
+                <div class="param-box">
+                    <div class="param-label">Score Gate</div>
+                    <div class="param-value">65.0</div>
+                </div>
+                <div class="param-box">
+                    <div class="param-label">Risk</div>
+                    <div class="param-value">1.0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
